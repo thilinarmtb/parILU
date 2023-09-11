@@ -41,6 +41,8 @@ if (ENABLE_DOCS)
   add_subdirectory ("docs")
 endif()
 
+include(3rd_party/gslib.cmake)
+
 # Add clang-format as a custom target if available.
 find_program(CLANG_FORMAT NAMES clang-format)
 if (CLANG_FORMAT)
