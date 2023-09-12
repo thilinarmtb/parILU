@@ -72,31 +72,6 @@ struct parilu_opts_t *parilu_init(int *argc, char **argv[]) {
 
 /**
  * @ingroup parilu_user_api_functions
- * @brief Setup parilu. Returns a pointer to a newly allocated struct parilu_t.
- *
- * @param n Number of local dofs in vertex array.
- * @param vertex Array of local dofs with global numbering.
- * @param nnz Number of nonzeros in the matrix.
- * @param row Row indices of the matrix which points to a global dof in \p
- * vertex array.
- * @param col Column indices of the matrix which points to a global dof in \p
- * vertex array.
- * @param val Values of the matrix.
- * @param options Pointer to the struct parilu_opts_t which contains the
- * options.
- * @param comm MPI communicator.
- * @param bfr Pointer to the buffer struct used for work arrays.
- */
-struct parilu_t *parilu_setup(uint n, const slong *const vertex, const uint nnz,
-                              const uint *const row, const uint *const col,
-                              const double *const val,
-                              const struct parilu_opts_t *const options,
-                              MPI_Comm comm, buffer *bfr) {
-  return NULL;
-}
-
-/**
- * @ingroup parilu_user_api_functions
  *
  * @brief Finalize parilu. Frees the memory allocated for the struct parilu_t
  * returned by parilu_init() and sets the pointer to NULL.

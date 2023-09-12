@@ -55,7 +55,7 @@ static struct csr_mat *setup_mat(uint n, const slong *const vtx, const uint nnz,
       ulong r = vtx[row[i]], c = vtx[col[i]];
       if (r == 0 || c == 0)
         continue;
-      if (r < minv)
+      if (r < (ulong)minv)
         minv = r;
       struct mij_t m = {.r = r, .c = c, .v = val[i]};
       array_cat(struct mij_t, &mat, &m, 1);
@@ -199,12 +199,29 @@ struct csr_mat *setup_laplacian(const struct csr_mat *const M) {
   return L;
 }
 
-struct parilu *parilu_setup1(uint n, const slong *const vtx, const uint nnz,
-                             const uint *const row, const uint *const col,
-                             const double *const val,
-                             const parilu_options *const options, MPI_Comm comm,
-                             buffer *bfr) {
-  struct parilu *ilu = tcalloc(struct parilu, 1);
+/**
+ * @ingroup parilu_user_api_functions
+ * @brief Setup parilu. Returns a pointer to a newly allocated struct parilu_t.
+ *
+ * @param n Number of local dofs in vertex array.
+ * @param vertex Array of local dofs with global numbering.
+ * @param nnz Number of nonzeros in the matrix.
+ * @param row Row indices of the matrix which points to a global dof in \p
+ * vertex array.
+ * @param col Column indices of the matrix which points to a global dof in \p
+ * vertex array.
+ * @param val Values of the matrix.
+ * @param options Pointer to the struct parilu_opts_t which contains the
+ * options.
+ * @param comm MPI communicator.
+ * @param bfr Pointer to the buffer struct used for work arrays.
+ */
+struct parilu_t *parilu_setup(uint n, const slong *const vertex, const uint nnz,
+                              const uint *const row, const uint *const col,
+                              const double *const val,
+                              const struct parilu_opts_t *const options,
+                              MPI_Comm comm, buffer *bfr) {
+  struct parilu_t *ilu = tcalloc(struct parilu_t, 1);
   ilu->pivot = options->pivot;
   ilu->verbose = options->verbose;
   ilu->null_space = options->null_space;
@@ -220,7 +237,7 @@ struct parilu *parilu_setup1(uint n, const slong *const vtx, const uint nnz,
   comm_init(&c, comm);
 
   // Setup CSR mat for ILU system.
-  struct csr_mat *M = setup_mat(n, vtx, nnz, row, col, val, &c, bfr);
+  struct csr_mat *M = setup_mat(n, vertex, nnz, row, col, val, &c, bfr);
   struct csr_mat *L = setup_laplacian(M);
 
   csr_mat_free(M);
