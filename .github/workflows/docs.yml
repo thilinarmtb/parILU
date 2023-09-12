@@ -52,7 +52,7 @@ jobs:
       - name: Build documentation
         id: build_docs
         run: |
-          ./parilu.sh --docs yes --install yes --build-dir ${BUILDDIR}
+          ./parilu.sh --cc mpicc --docs --build-dir ${BUILDDIR}
       # https://github.blog/2009-12-29-bypassing-jekyll-on-github-pages/
       - name: Bypass Jekyll
         id: bypass_jekyll

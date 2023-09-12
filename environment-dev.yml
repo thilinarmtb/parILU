@@ -5,6 +5,7 @@ channels:
 dependencies:
   - python=3.10
   - cmake=3.24
+  - openmpi=4.1.5
   - clang-format=16.0
   - clang-tools=16.0
   - clangdev=16.0 # We need this since clang-tools don't install clang headers.
