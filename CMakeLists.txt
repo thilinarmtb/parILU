@@ -28,6 +28,8 @@ target_include_directories(parilu PRIVATE include)
 target_compile_options(parilu PRIVATE
   $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
   $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic>)
+target_compile_options(parilu PRIVATE
+  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unused-function -Wno-unused-parameter>)
 
 add_executable(parilu-driver bin/parilu-driver.c)
 set_target_properties(parilu-driver PROPERTIES VERSION ${PROJECT_VERSION})
@@ -36,6 +38,8 @@ target_include_directories(parilu-driver PRIVATE include)
 target_compile_options(parilu-driver PRIVATE
   $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
   $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic>)
+target_compile_options(parilu-driver PRIVATE
+  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unused-function -Wno-unused-parameter>)
 
 if (ENABLE_DOCS)
   add_subdirectory ("docs")

@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#define scalar double
+
 /**
  * @defgroup parilu_internal_api_macros Internal API macros
  *
@@ -35,10 +37,27 @@
 #endif
 
 /**
- * parilu handle returned by parilu_init().
+ * parILU handle returned by parilu_setup().
  */
 struct parilu_t {
-  unsigned verbose; /**< Verbosity level. */
+  uint un;             /**< Number of local unknowns. */
+  struct gs_data *u2r; /**< User vector to global vector mapping. */
+
+  unsigned null_space; /**< Is there a null space? */
+  unsigned pivot;      /**< Use pivoting or not. */
+  unsigned verbose;    /**< Verbosity level. */
+
+  scalar
+      tol; /**< 1st dropping rule: An entry a_ij is dropped abs(a_ij) < tol. */
+  uint nnz_per_row; /**< 2nd dropping rule: Entries are dropped so that total
+                       nnz per row/col < p. */
+
+  uint nlvls;    /**< Number of levels in the ILU factor. */
+  uint *lvl_off; /**< Level offsets. */
+  ulong *perm;   /**< Permutation vector in case of pivoting. */
+  // struct par_mat_t A, L, U; /**< Matrix A. */
+
+  struct crystal cr; /**< Crystal router for communication. */
 };
 
 /**

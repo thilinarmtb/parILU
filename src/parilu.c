@@ -8,7 +8,7 @@ static void parilu_print_help(const char *name) {
   printf("  --parilu-help, Prints this help message and exit.\n");
 }
 
-static void parilu_parse_opts(struct parilu_t *parilu, int *argc,
+static void parilu_parse_opts(struct parilu_opts_t *parilu, int *argc,
                               char ***argv_) {
   parilu->verbose = 0;
 
@@ -55,19 +55,44 @@ static void parilu_parse_opts(struct parilu_t *parilu, int *argc,
  * @ingroup parilu_user_api_functions
  *
  * @brief Initialize parilu. Returns a pointer to a newly allocated struct
- * parilu_t.
+ * parilu_opts_t.
  *
  * @param argc Pointer to the number of commnad line arguments.
  * @param argv Pointer to the array of command line arguments.
  *
- * @return struct parilu_t*
+ * @return struct parilu_opts_t*
  */
-struct parilu_t *parilu_init(int *argc, char **argv[]) {
-  struct parilu_t *parilu = parilu_calloc(struct parilu_t, 1);
+struct parilu_opts_t *parilu_init(int *argc, char **argv[]) {
+  struct parilu_opts_t *parilu = parilu_calloc(struct parilu_opts_t, 1);
 
   parilu_parse_opts(parilu, argc, argv);
 
   return parilu;
+}
+
+/**
+ * @ingroup parilu_user_api_functions
+ * @brief Setup parilu. Returns a pointer to a newly allocated struct parilu_t.
+ *
+ * @param n Number of local dofs in vertex array.
+ * @param vertex Array of local dofs with global numbering.
+ * @param nnz Number of nonzeros in the matrix.
+ * @param row Row indices of the matrix which points to a global dof in \p
+ * vertex array.
+ * @param col Column indices of the matrix which points to a global dof in \p
+ * vertex array.
+ * @param val Values of the matrix.
+ * @param options Pointer to the struct parilu_opts_t which contains the
+ * options.
+ * @param comm MPI communicator.
+ * @param bfr Pointer to the buffer struct used for work arrays.
+ */
+struct parilu_t *parilu_setup(uint n, const slong *const vertex, const uint nnz,
+                              const uint *const row, const uint *const col,
+                              const double *const val,
+                              const struct parilu_opts_t *const options,
+                              MPI_Comm comm, buffer *bfr) {
+  return NULL;
 }
 
 /**
