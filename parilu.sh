@@ -21,8 +21,8 @@ function print_help() {
 : ${PARILU_BUILD_TYPE:=Release}
 : ${PARILU_INSTALL_PREFIX:=`pwd`/install}
 : ${PARILU_BUILD_DIR:=`pwd`/build}
-: ${PARILU_ENABLE_DOCS:=NO}
-: ${PARILU_ENABLE_ASAN:=NO}
+: ${PARILU_ENABLE_DOCS:=OFF}
+: ${PARILU_ENABLE_ASAN:=OFF}
 : ${PARILU_INSTALL:=NO}
 : ${PARILU_FORMAT:=NO}
 : ${PARILU_FORMAT_CHECK:=NO}
@@ -52,11 +52,11 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     -d|--docs)
-      PARILU_ENABLE_DOCS="YES"
+      PARILU_ENABLE_DOCS="ON"
       shift
       ;;
     -a|--asan)
-      PARILU_ENABLE_ASAN="YES"
+      PARILU_ENABLE_ASAN="ON"
       shift
       ;;
     -h|--help)

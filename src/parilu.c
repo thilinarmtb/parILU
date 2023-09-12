@@ -1,5 +1,5 @@
+#include "parilu-impl.h"
 #include <getopt.h>
-#include <parilu-impl.h>
 
 static void parilu_print_help(const char *name) {
   printf("Usage: %s [OPTIONS]\n", name);
