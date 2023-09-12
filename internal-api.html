@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Internal API &mdash; parilu  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/main_stylesheet.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="User API" href="user-api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            parilu
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">PARILU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-api.html">User API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Internal API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#macros">Macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#structures">Structures</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">parilu</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Internal API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/internal-api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="toctree-wrapper compound" id="api-internal">
+</div>
+<section id="internal-api">
+<h1>Internal API<a class="headerlink" href="#internal-api" title="Permalink to this heading"></a></h1>
+<section id="macros">
+<h2>Macros<a class="headerlink" href="#macros" title="Permalink to this heading"></a></h2>
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.PARILU_INTERN">
+<span class="target" id="group__parilu__internal__api__macros_1gaea87e18adc8b22a94ab3bbd23084e53e"></span><span class="sig-name descname"><span class="n"><span class="pre">PARILU_INTERN</span></span></span><a class="headerlink" href="#c.PARILU_INTERN" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Declare a symbol as internal. </p>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.parilu_calloc">
+<span class="target" id="group__parilu__internal__api__macros_1ga785fdb0ea29ba3ca4f873ee748e69d56"></span><span class="sig-name descname"><span class="n"><span class="pre">parilu_calloc</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">T</span></span>, <span class="n"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.parilu_calloc" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Macro for allocating memory. This macro calls C standard library function <code class="docutils literal notranslate"><span class="pre">calloc()</span></code> and casts the returned pointer as a pointer to type <code class="docutils literal notranslate"><span class="pre">T</span></code>. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>T</strong> – Type of the memory to be allocated. </p></li>
+<li><p><strong>n</strong> – Number of elements of type T to be allocated.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Pointer to the allocated memory. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.parilu_free">
+<span class="target" id="group__parilu__internal__api__macros_1gaeccba89710c9baa7ecfc5b30b42e0e0a"></span><span class="sig-name descname"><span class="n"><span class="pre">parilu_free</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">p</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.parilu_free" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Macro for freeing memory. This macro calls <a class="reference internal" href="#group__parilu__internal__api__functions_1ga9472d7a2c197003cb17838c59e02a023"><span class="std std-ref">parilu_free_()</span></a> function. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> – Pointer to the memory to be freed. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.parilu_assert">
+<span class="target" id="group__parilu__internal__api__macros_1ga4ef22fa4fb7d1b032cddb68f0cab010c"></span><span class="sig-name descname"><span class="n"><span class="pre">parilu_assert</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">COND</span></span>, <span class="n"><span class="pre">MSG</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.parilu_assert" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Macro for asserting a condition. This macro calls <a class="reference internal" href="#group__parilu__internal__api__functions_1ga67e5afc77a2881a3dbcf450b33b3aa22"><span class="std std-ref">parilu_assert_()</span></a> function. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>COND</strong> – Condition to be asserted. </p></li>
+<li><p><strong>MSG</strong> – Message to be printed if the condition is not met. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this heading"></a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412parilu_free_PPv">
+<span id="_CPPv312parilu_free_PPv"></span><span id="_CPPv212parilu_free_PPv"></span><span id="parilu_free___voidPP"></span><span class="target" id="group__parilu__internal__api__functions_1ga9472d7a2c197003cb17838c59e02a023"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">parilu_free_</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ptr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412parilu_free_PPv" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Function for freeing memory. <a class="reference internal" href="#group__parilu__internal__api__functions_1ga9472d7a2c197003cb17838c59e02a023"><span class="std std-ref">parilu_free_()</span></a> calls C standard library function <code class="docutils literal notranslate"><span class="pre">free()</span></code> and sets the pointer to NULL. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ptr</strong> – Pointer to the memory address (pointer to a pointer) to be freed. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412parilu_debugiPKcz">
+<span id="_CPPv312parilu_debugiPKcz"></span><span id="_CPPv212parilu_debugiPKcz"></span><span id="parilu_debug__i.cCP.z"></span><span class="target" id="group__parilu__internal__api__functions_1ga602eccf8fec5ed243e9d518580900af2"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">parilu_debug</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">verbose</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fmt</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412parilu_debugiPKcz" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Print a debug message if the verbosity level is greater than 0. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>verbose</strong> – Verbosity level. </p></li>
+<li><p><strong>fmt</strong> – Format string. </p></li>
+<li><p><strong>...</strong> – Format string arguments. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414parilu_assert_iPKcPKcKj">
+<span id="_CPPv314parilu_assert_iPKcPKcKj"></span><span id="_CPPv214parilu_assert_iPKcPKcKj"></span><span id="parilu_assert___i.cCP.cCP.unsignedC"></span><span class="target" id="group__parilu__internal__api__functions_1ga67e5afc77a2881a3dbcf450b33b3aa22"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">parilu_assert_</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">cond</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">file</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">line</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414parilu_assert_iPKcPKcKj" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Assert a condition to be true and print a message if the assertion fails. Use the macro <a class="reference internal" href="#group__parilu__internal__api__macros_1ga4ef22fa4fb7d1b032cddb68f0cab010c"><span class="std std-ref">parilu_assert()</span></a> instead of using this function directly. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cond</strong> – Condition to be asserted. </p></li>
+<li><p><strong>msg</strong> – Message to be printed if the assertion fails. </p></li>
+<li><p><strong>file</strong> – Name of the file where the assertion is made. </p></li>
+<li><p><strong>line</strong> – Line number where the assertion is made. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412parilu_errorPKcz">
+<span id="_CPPv312parilu_errorPKcz"></span><span id="_CPPv212parilu_errorPKcz"></span><span id="parilu_error__cCP.z"></span><span class="target" id="group__parilu__internal__api__functions_1ga8b96fbe282902237afcd842a621fe07c"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">parilu_error</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fmt</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412parilu_errorPKcz" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Print an error message and exit. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fmt</strong> – Format string. </p></li>
+<li><p><strong>...</strong> – Format string arguments. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="structures">
+<h2>Structures<a class="headerlink" href="#structures" title="Permalink to this heading"></a></h2>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv48parilu_t">
+<span id="_CPPv38parilu_t"></span><span id="_CPPv28parilu_t"></span><span id="parilu_t"></span><span class="target" id="structparilu__t"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">parilu_t</span></span></span><a class="headerlink" href="#_CPPv48parilu_t" title="Permalink to this definition"></a><br /></dt>
+<dd><p>parILU handle returned by <a class="reference internal" href="user-api.html#group__parilu__user__api__functions_1ga4eb7a17bdf95893c7f774c46aafadc2d"><span class="std std-ref">parilu_setup()</span></a>. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8parilu_t2unE">
+<span id="_CPPv3N8parilu_t2unE"></span><span id="_CPPv2N8parilu_t2unE"></span><span id="parilu_t::un__uint"></span><span class="target" id="structparilu__t_1aaa85a6ae37d4c59116973fdcc84ecd1f"></span><span class="n"><span class="pre">uint</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">un</span></span></span><a class="headerlink" href="#_CPPv4N8parilu_t2unE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Number of local unknowns. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8parilu_t3u2rE">
+<span id="_CPPv3N8parilu_t3u2rE"></span><span id="_CPPv2N8parilu_t3u2rE"></span><span id="parilu_t::u2r__gs_dataP"></span><span class="target" id="structparilu__t_1ae301df5d419a38e5f6dbcd8df8f56da5"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">gs_data</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">u2r</span></span></span><a class="headerlink" href="#_CPPv4N8parilu_t3u2rE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>User vector to global vector mapping. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8parilu_t10null_spaceE">
+<span id="_CPPv3N8parilu_t10null_spaceE"></span><span id="_CPPv2N8parilu_t10null_spaceE"></span><span id="parilu_t::null_space__unsigned"></span><span class="target" id="structparilu__t_1a770df1d5cd7319244e1ad43eb2cc1d29"></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">null_space</span></span></span><a class="headerlink" href="#_CPPv4N8parilu_t10null_spaceE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Is there a null space? </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8parilu_t5pivotE">
+<span id="_CPPv3N8parilu_t5pivotE"></span><span id="_CPPv2N8parilu_t5pivotE"></span><span id="parilu_t::pivot__unsigned"></span><span class="target" id="structparilu__t_1af0ad0d438168e185f450d3a8bdc72208"></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pivot</span></span></span><a class="headerlink" href="#_CPPv4N8parilu_t5pivotE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Use pivoting or not. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8parilu_t7verboseE">
+<span id="_CPPv3N8parilu_t7verboseE"></span><span id="_CPPv2N8parilu_t7verboseE"></span><span id="parilu_t::verbose__unsigned"></span><span class="target" id="structparilu__t_1a5cd0930a2542e4b35a77a73fd3520ea6"></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">verbose</span></span></span><a class="headerlink" href="#_CPPv4N8parilu_t7verboseE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Verbosity level. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8parilu_t3tolE">
+<span id="_CPPv3N8parilu_t3tolE"></span><span id="_CPPv2N8parilu_t3tolE"></span><span id="parilu_t::tol__double"></span><span class="target" id="structparilu__t_1a8307a99bcce00e0745179cdf68f824f5"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tol</span></span></span><a class="headerlink" href="#_CPPv4N8parilu_t3tolE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>1st dropping rule: An entry a_ij is dropped abs(a_ij) &lt; tol. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8parilu_t11nnz_per_rowE">
+<span id="_CPPv3N8parilu_t11nnz_per_rowE"></span><span id="_CPPv2N8parilu_t11nnz_per_rowE"></span><span id="parilu_t::nnz_per_row__uint"></span><span class="target" id="structparilu__t_1a7ccc05f48dd31f202cbdc68802c23c4c"></span><span class="n"><span class="pre">uint</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">nnz_per_row</span></span></span><a class="headerlink" href="#_CPPv4N8parilu_t11nnz_per_rowE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>2nd dropping rule: Entries are dropped so that total nnz per row/col &lt; p. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8parilu_t5nlvlsE">
+<span id="_CPPv3N8parilu_t5nlvlsE"></span><span id="_CPPv2N8parilu_t5nlvlsE"></span><span id="parilu_t::nlvls__uint"></span><span class="target" id="structparilu__t_1a8ff4d655a51450e7746801b62ff48597"></span><span class="n"><span class="pre">uint</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">nlvls</span></span></span><a class="headerlink" href="#_CPPv4N8parilu_t5nlvlsE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Number of levels in the ILU factor. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8parilu_t7lvl_offE">
+<span id="_CPPv3N8parilu_t7lvl_offE"></span><span id="_CPPv2N8parilu_t7lvl_offE"></span><span id="parilu_t::lvl_off__uintP"></span><span class="target" id="structparilu__t_1a7af1b4dd345d6d7ee8826b4d099e7d7f"></span><span class="n"><span class="pre">uint</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">lvl_off</span></span></span><a class="headerlink" href="#_CPPv4N8parilu_t7lvl_offE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Level offsets. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8parilu_t4permE">
+<span id="_CPPv3N8parilu_t4permE"></span><span id="_CPPv2N8parilu_t4permE"></span><span id="parilu_t::perm__ulongP"></span><span class="target" id="structparilu__t_1a9ad1db26d0821936425f138d765117dd"></span><span class="n"><span class="pre">ulong</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">perm</span></span></span><a class="headerlink" href="#_CPPv4N8parilu_t4permE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Permutation vector in case of pivoting. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8parilu_t2crE">
+<span id="_CPPv3N8parilu_t2crE"></span><span id="_CPPv2N8parilu_t2crE"></span><span id="parilu_t::cr__crystal"></span><span class="target" id="structparilu__t_1a843b424c2a6c98542b814bc2b7b2d66b"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">crystal</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cr</span></span></span><a class="headerlink" href="#_CPPv4N8parilu_t2crE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Crystal router for communication. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="user-api.html" class="btn btn-neutral float-left" title="User API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, parilu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

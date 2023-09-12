@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User API &mdash; parilu  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/main_stylesheet.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Internal API" href="internal-api.html" />
+    <link rel="prev" title="PARILU" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            parilu
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">PARILU</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">User API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#macros">Macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="internal-api.html">Internal API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">parilu</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">User API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/user-api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="toctree-wrapper compound" id="api-user">
+</div>
+<section id="user-api">
+<h1>User API<a class="headerlink" href="#user-api" title="Permalink to this heading"></a></h1>
+<section id="macros">
+<h2>Macros<a class="headerlink" href="#macros" title="Permalink to this heading"></a></h2>
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.PARILU_VISIBILITY">
+<span class="target" id="group__parilu__user__api__macros_1ga2a4dfc8aec696abdb34a966aa06fe729"></span><span class="sig-name descname"><span class="n"><span class="pre">PARILU_VISIBILITY</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">mode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.PARILU_VISIBILITY" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Set the visibility of a symbol. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mode</strong> – Visibility mode (hidden, default, etc.). </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.PARILU_EXTERN">
+<span class="target" id="group__parilu__user__api__macros_1gac37b9c380c3b43d9572c268a20f8091a"></span><span class="sig-name descname"><span class="n"><span class="pre">PARILU_EXTERN</span></span></span><a class="headerlink" href="#c.PARILU_EXTERN" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Declare a symbol as external. </p>
+</dd></dl>
+
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this heading"></a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412parilu_setup4uintPCK5slongK4uintPCK4uintPCK4uintPCKdPCK13parilu_opts_t8MPI_CommP6buffer">
+<span id="_CPPv312parilu_setup4uintPCK5slongK4uintPCK4uintPCK4uintPCKdPCK13parilu_opts_t8MPI_CommP6buffer"></span><span id="_CPPv212parilu_setup4uintPCK5slongK4uintPCK4uintPCK4uintPCKdPCK13parilu_opts_t8MPI_CommP6buffer"></span><span id="parilu_setup__uint.slongCPC.uintC.uintCPC.uintCPC.doubleCPC.parilu_opts_tCPC.MPI_Comm.bufferP"></span><span class="target" id="group__parilu__user__api__functions_1ga4eb7a17bdf95893c7f774c46aafadc2d"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="internal-api.html#_CPPv48parilu_t" title="parilu_t"><span class="n"><span class="pre">parilu_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">parilu_setup</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">slong</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">vertex</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">uint</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nnz</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">uint</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">row</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">uint</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">col</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">val</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">parilu_opts_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">options</span></span>, <span class="n"><span class="pre">MPI_Comm</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">comm</span></span>, <span class="n"><span class="pre">buffer</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">bfr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412parilu_setup4uintPCK5slongK4uintPCK4uintPCK4uintPCKdPCK13parilu_opts_t8MPI_CommP6buffer" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Setup parilu. Returns a pointer to a newly allocated struct <a class="reference internal" href="internal-api.html#structparilu__t"><span class="std std-ref">parilu_t</span></a>. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> – Number of local dofs in vertex array. </p></li>
+<li><p><strong>vertex</strong> – Array of local dofs with global numbering. </p></li>
+<li><p><strong>nnz</strong> – Number of nonzeros in the matrix. </p></li>
+<li><p><strong>row</strong> – Row indices of the matrix which points to a global dof in <code class="docutils literal notranslate"><span class="pre">vertex</span></code> array. </p></li>
+<li><p><strong>col</strong> – Column indices of the matrix which points to a global dof in <code class="docutils literal notranslate"><span class="pre">vertex</span></code> array. </p></li>
+<li><p><strong>val</strong> – Values of the matrix. </p></li>
+<li><p><strong>options</strong> – Pointer to the struct parilu_opts_t which contains the options. </p></li>
+<li><p><strong>comm</strong> – MPI communicator. </p></li>
+<li><p><strong>bfr</strong> – Pointer to the buffer struct used for work arrays. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411parilu_initPiA_PPc">
+<span id="_CPPv311parilu_initPiA_PPc"></span><span id="_CPPv211parilu_initPiA_PPc"></span><span id="parilu_init__iP.cPPA"></span><span class="target" id="group__parilu__user__api__functions_1gaf3eb21c2df86e7e6680e4caa9089fcf3"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">parilu_opts_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">parilu_init</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">argc</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">argv</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411parilu_initPiA_PPc" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Initialize parilu. Returns a pointer to a newly allocated struct parilu_opts_t. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>argc</strong> – Pointer to the number of commnad line arguments. </p></li>
+<li><p><strong>argv</strong> – Pointer to the array of command line arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>struct parilu_opts_t* </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415parilu_finalizePP8parilu_t">
+<span id="_CPPv315parilu_finalizePP8parilu_t"></span><span id="_CPPv215parilu_finalizePP8parilu_t"></span><span id="parilu_finalize__parilu_tPP"></span><span class="target" id="group__parilu__user__api__functions_1gacbc58e3919223133fe0b3fc0854e8673"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">parilu_finalize</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="internal-api.html#_CPPv48parilu_t" title="parilu_t"><span class="n"><span class="pre">parilu_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">parilu</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415parilu_finalizePP8parilu_t" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Finalize parilu. Frees the memory allocated for the struct <a class="reference internal" href="internal-api.html#structparilu__t"><span class="std std-ref">parilu_t</span></a> returned by <a class="reference internal" href="#group__parilu__user__api__functions_1gaf3eb21c2df86e7e6680e4caa9089fcf3"><span class="std std-ref">parilu_init()</span></a> and sets the pointer to NULL. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parilu</strong> – Pointer to the struct parilu_t* to be freed. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="PARILU" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="internal-api.html" class="btn btn-neutral float-right" title="Internal API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, parilu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
