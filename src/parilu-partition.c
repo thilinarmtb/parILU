@@ -30,9 +30,19 @@ static inline scalar dot(const scalar *const v, const scalar *const u,
   return sum;
 }
 
+static inline void normalize(scalar *const v, const uint n,
+                             const struct comm *const c) {
+  scalar normi = 1.0 / sqrt(dot(v, v, n, c));
+  for (uint i = 0; i < n; i++)
+    v[i] *= normi;
+}
+
 static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
-                           const scalar *const init, const struct comm *const c,
-                           buffer *bfr, const int verbose) {}
+                           const scalar *const init, const uint miter,
+                           const uint mpass, const struct comm *const c,
+                           buffer *bfr, const int verbose) {
+  return;
+}
 
 static void parilu_fiedler(const struct parilu_mat_t *M,
                            const struct comm *const c, buffer *bfr,
@@ -60,13 +70,16 @@ static void parilu_fiedler(const struct parilu_mat_t *M,
   {
     for (uint i = 0; i < nr; i++)
       init[i] = startg + 1.0;
-
     orthogonalize(init, nr, c);
-
-    scalar normi = 1.0 / sqrt(dot(init, init, nr, c));
-    for (uint i = 0; i < nr; i++)
-      init[i] *= normi;
+    normalize(init, nr, c);
   }
+
+  scalar *fiedler = tcalloc(scalar, nr);
+  parilu_lanczos(fiedler, M, init, 50, 50, c, bfr, verbose);
+
+  normalize(fiedler, nr, c);
+
+  parilu_free(&init), parilu_free(&fiedler);
 }
 
 struct parilu_mat_t *parilu_partition(const struct parilu_mat_t *const M,

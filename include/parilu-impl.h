@@ -118,6 +118,25 @@ struct parilu_mat_t {
   scalar *val; /**< Local values (size: off[rn + 1]). */
 };
 
+PARILU_INTERN struct parilu_mat_t *
+parilu_mat_setup(const uint n, const slong *const vtx, const uint nnz,
+                 const uint *const row, const uint *const col,
+                 const double *const val, const struct comm *const c,
+                 buffer *const bfr, const int verbose);
+
+PARILU_INTERN struct parilu_mat_t *
+parilu_mat_laplacian(const struct parilu_mat_t *const M);
+
+PARILU_INTERN struct gs_data *parilu_mat_vec_setup(const struct parilu_mat_t *M,
+                                                   const struct comm *const c,
+                                                   buffer *const bfr);
+
+PARILU_INTERN void parilu_mat_vec(scalar *const y,
+                                  const struct parilu_mat_t *const M,
+                                  const scalar *const x,
+                                  const struct gs_data *const gsh,
+                                  buffer *const bfr);
+
 PARILU_INTERN void parilu_mat_free(struct parilu_mat_t *M);
 
 #endif // __LIBPARILU_IMPL_H__
