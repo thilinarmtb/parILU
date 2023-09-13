@@ -25,6 +25,7 @@ parilu_setup_mat(const uint n, const slong *const vtx, const uint nnz,
                  const double *const val, const struct comm *const c,
                  buffer *bfr, const int verbose) {
   parilu_debug(c, verbose, "parilu_setup_mat: n = %u, nnz = %u", n, nnz);
+
   // Check if the global matrix is empty and return if it is.
   struct parilu_mat_t *M = tcalloc(struct parilu_mat_t, 1);
   {
@@ -75,8 +76,8 @@ parilu_setup_mat(const uint n, const slong *const vtx, const uint nnz,
       array_cat(struct mij_t, &mat2, &pm1[i], 1);
       i = j;
     }
-    array_free(&mat1);
   }
+  array_free(&mat1);
 
   // Assemble the matrix globally now to finish the assembly.
   uint rn = 0;
@@ -99,16 +100,13 @@ parilu_setup_mat(const uint n, const slong *const vtx, const uint nnz,
         i = j, rn++;
       }
     }
-    array_free(&mat2);
   }
+  array_free(&mat2);
 
   // Find the column ids in each processor.
-  uint cn = 0;
-  ulong *cols = NULL;
+  uint cn = 0, cmax = MAX_ARRAY_SIZE;
+  ulong *cols = tcalloc(ulong, cmax);
   {
-    uint cmax = MAX_ARRAY_SIZE;
-    cols = tcalloc(ulong, cmax);
-
     sarray_sort(struct mij_t, mat1.ptr, mat1.n, c, 1, bfr);
     struct mij_t *pm1 = (struct mij_t *)mat1.ptr;
     uint i = 0, j;
@@ -153,8 +151,8 @@ parilu_setup_mat(const uint n, const slong *const vtx, const uint nnz,
     M->col = tcalloc(ulong, cn);
     for (uint i = 0; i < cn; i++)
       M->col[i] = cols[i];
-    free(cols);
   }
+  parilu_free(&cols);
 
   return M;
 }
@@ -235,7 +233,6 @@ struct parilu_t *parilu_setup(uint n, const slong *const vertex, const uint nnz,
   parilu_debug(&c, verbose, "parilu_setup: Setup the matrix.");
   struct parilu_mat_t *M =
       parilu_setup_mat(n, vertex, nnz, row, col, val, &c, bfr, verbose - 1);
-  parilu_assert(M != NULL, "parilu_setup: Failed to setup the matrix.");
 
   // Create the Laplacian matrix of the system.
   parilu_debug(&c, verbose, "parilu_setup: Setup the laplacian matrix.");
@@ -243,9 +240,10 @@ struct parilu_t *parilu_setup(uint n, const slong *const vertex, const uint nnz,
 
   // Parition the matrix with parRSB.
   parilu_debug(&c, verbose, "parilu_setup: Partition the matrix.");
-  parilu_mat_free(M), parilu_mat_free(L);
 
+  parilu_mat_free(M), parilu_mat_free(L);
   comm_free(&c);
+
   parilu_debug(&c, verbose, "parilu_setup: done.");
 
   return ilu;
