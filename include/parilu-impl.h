@@ -84,7 +84,8 @@ PARILU_INTERN void parilu_free_(void **ptr);
  */
 #define parilu_free(p) parilu_free_((void **)p)
 
-PARILU_INTERN void parilu_debug(int verbose, const char *fmt, ...);
+PARILU_INTERN void parilu_debug(const struct comm *const c, const int verbose,
+                                const char *fmt, ...);
 
 PARILU_INTERN void parilu_assert_(int cond, const char *fmt, const char *file,
                                   unsigned line);
@@ -113,5 +114,7 @@ struct parilu_mat_t {
   ulong *col;  /**< Global column numbers (size: cn). */
   scalar *val; /**< Local values (size: off[rn + 1]). */
 };
+
+PARILU_INTERN void parilu_mat_free(struct parilu_mat_t *M);
 
 #endif // __LIBPARILU_IMPL_H__

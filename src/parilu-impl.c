@@ -15,15 +15,20 @@ void parilu_free_(void **ptr) { free(*ptr), *ptr = NULL; }
  *
  * @brief Print a debug message if the verbosity level is greater than 0.
  *
+ * @param c MPI communicator wrapper from gslib.
  * @param verbose Verbosity level.
  * @param fmt Format string.
  * @param ... Format string arguments.
  */
-void parilu_debug(int verbose, const char *fmt, ...) {
+void parilu_debug(const struct comm *const c, const int verbose,
+                  const char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
-  if (verbose > 0)
+  if (verbose > 0 && c->id == 0) {
     vprintf(fmt, args);
+    printf("\n");
+  }
+  fflush(stdout);
   va_end(args);
 }
 
