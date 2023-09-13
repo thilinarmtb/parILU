@@ -17,3 +17,9 @@ Functions
 .. doxygengroup:: parilu_user_api_functions
    :project: parilu
    :content-only:
+
+Structures
+^^^^^^^^^^
+.. doxygenstruct:: parilu_opts_t
+   :project: parilu
+   :members:

@@ -54,8 +54,8 @@ static void parilu_parse_opts(struct parilu_opts_t *parilu, int *argc,
 /**
  * @ingroup parilu_user_api_functions
  *
- * @brief Initialize parilu. Returns a pointer to a newly allocated struct
- * parilu_opts_t.
+ * @brief Initialize parilu_opts_t object from command line input. Returns a
+ * pointer to a newly allocated struct parilu_opts_t.
  *
  * @param argc Pointer to the number of commnad line arguments.
  * @param argv Pointer to the array of command line arguments.
@@ -63,11 +63,11 @@ static void parilu_parse_opts(struct parilu_opts_t *parilu, int *argc,
  * @return struct parilu_opts_t*
  */
 struct parilu_opts_t *parilu_init(int *argc, char **argv[]) {
-  struct parilu_opts_t *parilu = parilu_calloc(struct parilu_opts_t, 1);
+  struct parilu_opts_t *opts = parilu_calloc(struct parilu_opts_t, 1);
 
-  parilu_parse_opts(parilu, argc, argv);
+  parilu_parse_opts(opts, argc, argv);
 
-  return parilu;
+  return opts;
 }
 
 /**

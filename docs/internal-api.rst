@@ -21,4 +21,5 @@ Functions
 Structures
 ^^^^^^^^^^
 .. doxygenstruct:: parilu_t
-  :members:
+   :project: parilu
+   :members:
