@@ -9,7 +9,7 @@ struct mij_t {
 };
 
 struct csr_mat {
-  uint n, cn, *off, *idx;
+  uint rn, cn, *off, *idx;
   ulong *row, *col;
   scalar *val;
 };
@@ -42,7 +42,7 @@ static struct csr_mat *parilu_setup_mat(uint n, const slong *const vtx,
     slong nnzg = nnz, wrk;
     comm_allreduce(c, gs_long, gs_add, &nnzg, 1, &wrk);
     if (nnzg == 0) {
-      M->n = 0;
+      M->rn = M->cn = 0;
       M->off = M->idx = NULL;
       M->row = M->col = NULL;
       return M;
@@ -142,7 +142,7 @@ static struct csr_mat *parilu_setup_mat(uint n, const slong *const vtx,
     sarray_sort_2(struct mij_t, mat1.ptr, mat1.n, r, 1, c, 1, bfr);
 
     struct mij_t *pm1 = (struct mij_t *)mat1.ptr;
-    M->n = rn;
+    M->rn = rn;
     M->off = tcalloc(uint, rn + 1);
     M->row = tcalloc(ulong, rn);
     M->idx = tcalloc(uint, mat1.n);
@@ -174,14 +174,14 @@ static struct csr_mat *
 parilu_setup_laplacian_mat(const struct csr_mat *const M) {
   struct csr_mat *L = tcalloc(struct csr_mat, 1);
 
-  const uint n = L->n = M->n;
-  L->off = tcalloc(uint, M->n + 1);
-  memcpy(L->off, M->off, sizeof(uint) * (n + 1));
+  const uint rn = L->rn = M->rn;
+  L->off = tcalloc(uint, M->rn + 1);
+  memcpy(L->off, M->off, sizeof(uint) * (rn + 1));
 
-  L->row = tcalloc(ulong, n);
-  memcpy(L->row, M->row, sizeof(ulong) * n);
+  L->row = tcalloc(ulong, rn);
+  memcpy(L->row, M->row, sizeof(ulong) * rn);
 
-  const uint nnz = M->off[n];
+  const uint nnz = M->off[rn];
   L->idx = tcalloc(uint, nnz);
   memcpy(L->idx, M->idx, nnz);
 
@@ -189,15 +189,14 @@ parilu_setup_laplacian_mat(const struct csr_mat *const M) {
   L->col = tcalloc(ulong, cn);
   memcpy(L->col, M->col, sizeof(ulong) * cn);
 
-  for (uint i = 0; i < n; i++) {
+  for (uint i = 0; i < rn; i++) {
     sint didx = -1;
     for (uint j = M->idx[i], je = M->idx[i + 1]; j < je; j++) {
       if (M->row[i] == M->col[M->idx[j]])
         didx = j;
       M->val[j] = -1;
     }
-    assert(didx >= M->idx[i] && didx < M->idx[i + 1]);
-    assert((M->idx[i + 1] - M->idx[i] - 1) > 0);
+    assert(didx != -1 && "No diagonal entry found!");
     M->val[didx] = M->idx[i + 1] - M->idx[i] - 1;
   }
 
@@ -243,6 +242,7 @@ struct parilu_t *parilu_setup(uint n, const slong *const vertex, const uint nnz,
 
   // Setup CSR mat for ILU system.
   struct csr_mat *M = parilu_setup_mat(n, vertex, nnz, row, col, val, &c, bfr);
+  // Create the Laplacian matrix of the system.
   struct csr_mat *L = parilu_setup_laplacian_mat(M);
 
   parilu_mat_free(M);
