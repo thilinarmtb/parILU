@@ -49,6 +49,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">User API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#macros">Macros</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#structures">Structures</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="internal-api.html">Internal API</a></li>
@@ -108,7 +109,7 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Permalink to this heading"></a></h2>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv412parilu_setup4uintPCK5slongK4uintPCK4uintPCK4uintPCKdPCK13parilu_opts_t8MPI_CommP6buffer">
-<span id="_CPPv312parilu_setup4uintPCK5slongK4uintPCK4uintPCK4uintPCKdPCK13parilu_opts_t8MPI_CommP6buffer"></span><span id="_CPPv212parilu_setup4uintPCK5slongK4uintPCK4uintPCK4uintPCKdPCK13parilu_opts_t8MPI_CommP6buffer"></span><span id="parilu_setup__uint.slongCPC.uintC.uintCPC.uintCPC.doubleCPC.parilu_opts_tCPC.MPI_Comm.bufferP"></span><span class="target" id="group__parilu__user__api__functions_1ga4eb7a17bdf95893c7f774c46aafadc2d"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="internal-api.html#_CPPv48parilu_t" title="parilu_t"><span class="n"><span class="pre">parilu_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">parilu_setup</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">slong</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">vertex</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">uint</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nnz</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">uint</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">row</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">uint</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">col</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">val</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">parilu_opts_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">options</span></span>, <span class="n"><span class="pre">MPI_Comm</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">comm</span></span>, <span class="n"><span class="pre">buffer</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">bfr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412parilu_setup4uintPCK5slongK4uintPCK4uintPCK4uintPCKdPCK13parilu_opts_t8MPI_CommP6buffer" title="Permalink to this definition"></a><br /></dt>
+<span id="_CPPv312parilu_setup4uintPCK5slongK4uintPCK4uintPCK4uintPCKdPCK13parilu_opts_t8MPI_CommP6buffer"></span><span id="_CPPv212parilu_setup4uintPCK5slongK4uintPCK4uintPCK4uintPCKdPCK13parilu_opts_t8MPI_CommP6buffer"></span><span id="parilu_setup__uint.slongCPC.uintC.uintCPC.uintCPC.doubleCPC.parilu_opts_tCPC.MPI_Comm.bufferP"></span><span class="target" id="group__parilu__user__api__functions_1ga4eb7a17bdf95893c7f774c46aafadc2d"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="internal-api.html#_CPPv48parilu_t" title="parilu_t"><span class="n"><span class="pre">parilu_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">parilu_setup</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">slong</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">vertex</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">uint</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nnz</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">uint</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">row</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">uint</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">col</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">val</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv413parilu_opts_t" title="parilu_opts_t"><span class="n"><span class="pre">parilu_opts_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">options</span></span>, <span class="n"><span class="pre">MPI_Comm</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">comm</span></span>, <span class="n"><span class="pre">buffer</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">bfr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412parilu_setup4uintPCK5slongK4uintPCK4uintPCK4uintPCKdPCK13parilu_opts_t8MPI_CommP6buffer" title="Permalink to this definition"></a><br /></dt>
 <dd><p>Setup parilu. Returns a pointer to a newly allocated struct <a class="reference internal" href="internal-api.html#structparilu__t"><span class="std std-ref">parilu_t</span></a>. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -119,7 +120,7 @@
 <li><p><strong>row</strong> – Row indices of the matrix which points to a global dof in <code class="docutils literal notranslate"><span class="pre">vertex</span></code> array. </p></li>
 <li><p><strong>col</strong> – Column indices of the matrix which points to a global dof in <code class="docutils literal notranslate"><span class="pre">vertex</span></code> array. </p></li>
 <li><p><strong>val</strong> – Values of the matrix. </p></li>
-<li><p><strong>options</strong> – Pointer to the struct parilu_opts_t which contains the options. </p></li>
+<li><p><strong>options</strong> – Pointer to the struct <a class="reference internal" href="#structparilu__opts__t"><span class="std std-ref">parilu_opts_t</span></a> which contains the options. </p></li>
 <li><p><strong>comm</strong> – MPI communicator. </p></li>
 <li><p><strong>bfr</strong> – Pointer to the buffer struct used for work arrays. </p></li>
 </ul>
@@ -129,8 +130,8 @@
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv411parilu_initPiA_PPc">
-<span id="_CPPv311parilu_initPiA_PPc"></span><span id="_CPPv211parilu_initPiA_PPc"></span><span id="parilu_init__iP.cPPA"></span><span class="target" id="group__parilu__user__api__functions_1gaf3eb21c2df86e7e6680e4caa9089fcf3"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">parilu_opts_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">parilu_init</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">argc</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">argv</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411parilu_initPiA_PPc" title="Permalink to this definition"></a><br /></dt>
-<dd><p>Initialize parilu. Returns a pointer to a newly allocated struct parilu_opts_t. </p>
+<span id="_CPPv311parilu_initPiA_PPc"></span><span id="_CPPv211parilu_initPiA_PPc"></span><span id="parilu_init__iP.cPPA"></span><span class="target" id="group__parilu__user__api__functions_1gaf3eb21c2df86e7e6680e4caa9089fcf3"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv413parilu_opts_t" title="parilu_opts_t"><span class="n"><span class="pre">parilu_opts_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">parilu_init</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">argc</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">argv</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411parilu_initPiA_PPc" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Initialize <a class="reference internal" href="#structparilu__opts__t"><span class="std std-ref">parilu_opts_t</span></a> object from command line input. Returns a pointer to a newly allocated struct <a class="reference internal" href="#structparilu__opts__t"><span class="std std-ref">parilu_opts_t</span></a>. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -153,6 +154,54 @@
 <dd class="field-odd"><p><strong>parilu</strong> – Pointer to the struct parilu_t* to be freed. </p>
 </dd>
 </dl>
+</dd></dl>
+
+</section>
+<section id="structures">
+<h2>Structures<a class="headerlink" href="#structures" title="Permalink to this heading"></a></h2>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv413parilu_opts_t">
+<span id="_CPPv313parilu_opts_t"></span><span id="_CPPv213parilu_opts_t"></span><span id="parilu_opts_t"></span><span class="target" id="structparilu__opts__t"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">parilu_opts_t</span></span></span><a class="headerlink" href="#_CPPv413parilu_opts_t" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Struct to hold the options for the ILU preconditioner. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13parilu_opts_t4typeE">
+<span id="_CPPv3N13parilu_opts_t4typeE"></span><span id="_CPPv2N13parilu_opts_t4typeE"></span><span id="parilu_opts_t::type__unsigned"></span><span class="target" id="structparilu__opts__t_1a0acbaf5e4e57087b4476ce22e1af8d36"></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">type</span></span></span><a class="headerlink" href="#_CPPv4N13parilu_opts_t4typeE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>ILU type: ILU(0), ILUC, etc. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13parilu_opts_t7verboseE">
+<span id="_CPPv3N13parilu_opts_t7verboseE"></span><span id="_CPPv2N13parilu_opts_t7verboseE"></span><span id="parilu_opts_t::verbose__unsigned"></span><span class="target" id="structparilu__opts__t_1a087b5420c289701d3dad0e7de47305aa"></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">verbose</span></span></span><a class="headerlink" href="#_CPPv4N13parilu_opts_t7verboseE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Verbosity level: 0, 1, 2, … </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13parilu_opts_t5pivotE">
+<span id="_CPPv3N13parilu_opts_t5pivotE"></span><span id="_CPPv2N13parilu_opts_t5pivotE"></span><span id="parilu_opts_t::pivot__unsigned"></span><span class="target" id="structparilu__opts__t_1a1764ea744e83b5d97059c282941549eb"></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pivot</span></span></span><a class="headerlink" href="#_CPPv4N13parilu_opts_t5pivotE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Use pivoting or not. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13parilu_opts_t10null_spaceE">
+<span id="_CPPv3N13parilu_opts_t10null_spaceE"></span><span id="_CPPv2N13parilu_opts_t10null_spaceE"></span><span id="parilu_opts_t::null_space__unsigned"></span><span class="target" id="structparilu__opts__t_1a17d58982f0d95f7cb6be23b62330ad05"></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">null_space</span></span></span><a class="headerlink" href="#_CPPv4N13parilu_opts_t10null_spaceE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Is there a null space? </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13parilu_opts_t3tolE">
+<span id="_CPPv3N13parilu_opts_t3tolE"></span><span id="_CPPv2N13parilu_opts_t3tolE"></span><span id="parilu_opts_t::tol__double"></span><span class="target" id="structparilu__opts__t_1ae343f825f394dddcff27083cdf58835a"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tol</span></span></span><a class="headerlink" href="#_CPPv4N13parilu_opts_t3tolE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>1st dropping rule: An entry a_ij is dropped abs(a_ij) &lt; tol. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13parilu_opts_t11nnz_per_rowE">
+<span id="_CPPv3N13parilu_opts_t11nnz_per_rowE"></span><span id="_CPPv2N13parilu_opts_t11nnz_per_rowE"></span><span id="parilu_opts_t::nnz_per_row__unsigned-i"></span><span class="target" id="structparilu__opts__t_1a203bf67606868fb559008fda551516b0"></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">nnz_per_row</span></span></span><a class="headerlink" href="#_CPPv4N13parilu_opts_t11nnz_per_rowE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>2nd dropping rule: Entries are dropped so that total nnz per row/col &lt; p. </p>
+</dd></dl>
+
+</div>
 </dd></dl>
 
 </section>
