@@ -1,5 +1,7 @@
 #include "parilu-impl.h"
 
+#define MAX_ARRAY_SIZE 1024
+
 struct mij_t {
   ulong r, c;
   uint p, idx;
@@ -12,7 +14,7 @@ struct csr_mat {
   scalar *val;
 };
 
-static void csr_mat_free(struct csr_mat *const M) {
+static void parilu_mat_free(struct csr_mat *const M) {
   if (M) {
     if (M->off)
       free(M->off);
@@ -28,10 +30,12 @@ static void csr_mat_free(struct csr_mat *const M) {
   }
 }
 
-static struct csr_mat *setup_mat(uint n, const slong *const vtx, const uint nnz,
-                                 const uint *const row, const uint *const col,
-                                 const double *const val,
-                                 const struct comm *const c, buffer *bfr) {
+static struct csr_mat *parilu_setup_mat(uint n, const slong *const vtx,
+                                        const uint nnz, const uint *const row,
+                                        const uint *const col,
+                                        const double *const val,
+                                        const struct comm *const c,
+                                        buffer *bfr) {
   // Check if the global matrix is empty and return if it is.
   struct csr_mat *M = tcalloc(struct csr_mat, 1);
   {
@@ -113,7 +117,7 @@ static struct csr_mat *setup_mat(uint n, const slong *const vtx, const uint nnz,
   uint cn = 0;
   ulong *cols = NULL;
   {
-    uint cmax = 1024;
+    uint cmax = MAX_ARRAY_SIZE;
     cols = tcalloc(ulong, cmax);
 
     sarray_sort(struct mij_t, mat.ptr, mat.n, c, 1, bfr);
@@ -166,7 +170,8 @@ static struct csr_mat *setup_mat(uint n, const slong *const vtx, const uint nnz,
   return M;
 }
 
-struct csr_mat *setup_laplacian(const struct csr_mat *const M) {
+static struct csr_mat *
+parilu_setup_laplacian_mat(const struct csr_mat *const M) {
   struct csr_mat *L = tcalloc(struct csr_mat, 1);
 
   const uint n = L->n = M->n;
@@ -237,12 +242,14 @@ struct parilu_t *parilu_setup(uint n, const slong *const vertex, const uint nnz,
   comm_init(&c, comm);
 
   // Setup CSR mat for ILU system.
-  struct csr_mat *M = setup_mat(n, vertex, nnz, row, col, val, &c, bfr);
-  struct csr_mat *L = setup_laplacian(M);
+  struct csr_mat *M = parilu_setup_mat(n, vertex, nnz, row, col, val, &c, bfr);
+  struct csr_mat *L = parilu_setup_laplacian_mat(M);
 
-  csr_mat_free(M);
-  csr_mat_free(L);
+  parilu_mat_free(M);
+  parilu_mat_free(L);
   comm_free(&c);
 
   return ilu;
 }
+
+#undef MAX_ARRAY_SIZE
