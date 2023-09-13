@@ -50,8 +50,8 @@ static struct csr_mat *parilu_setup_mat(uint n, const slong *const vtx,
   }
 
   // Add the non-zeros into an array.
-  struct array mat;
-  array_init(struct mij_t, &mat, nnz);
+  struct array mat1;
+  array_init(struct mij_t, &mat1, nnz);
   {
     slong minv = LONG_MAX;
     for (uint i = 0; i < nnz; i++) {
@@ -59,10 +59,10 @@ static struct csr_mat *parilu_setup_mat(uint n, const slong *const vtx,
       ulong r = vtx[row[i]], c = vtx[col[i]];
       if (r == 0 || c == 0)
         continue;
-      if (r < (ulong)minv)
+      if ((slong)r < minv)
         minv = r;
       struct mij_t m = {.r = r, .c = c, .v = val[i]};
-      array_cat(struct mij_t, &mat, &m, 1);
+      array_cat(struct mij_t, &mat1, &m, 1);
     }
 
     slong wrk;
@@ -72,45 +72,45 @@ static struct csr_mat *parilu_setup_mat(uint n, const slong *const vtx,
 
   // Assemble the entries locally by summing up the entries with same row and
   // column.
-  struct array umat;
-  array_init(struct mij_t, &umat, mat.n);
+  struct array mat2;
+  array_init(struct mij_t, &mat2, mat1.n);
   {
-    sarray_sort_2(struct mij_t, mat.ptr, mat.n, r, 1, c, 1, bfr);
-    struct mij_t *pm = (struct mij_t *)mat.ptr;
+    sarray_sort_2(struct mij_t, mat1.ptr, mat1.n, r, 1, c, 1, bfr);
+    struct mij_t *pm1 = (struct mij_t *)mat1.ptr;
     uint i = 0, j;
-    while (i < mat.n) {
+    while (i < mat1.n) {
       j = i + 1;
-      while (j < mat.n && (pm[i].r == pm[j].r) && (pm[i].c == pm[j].c))
-        pm[i].v += pm[j].v, j++;
-      pm[i].p = pm[i].r % c->np;
-      array_cat(struct mij_t, &umat, &pm[i], 1);
+      while (j < mat1.n && (pm1[i].r == pm1[j].r) && (pm1[i].c == pm1[j].c))
+        pm1[i].v += pm1[j].v, j++;
+      pm1[i].p = pm1[i].r % c->np;
+      array_cat(struct mij_t, &mat2, &pm1[i], 1);
       i = j;
     }
-    array_free(&mat);
+    array_free(&mat1);
   }
 
-  // Assemble the matrix globally now to finish the global assembly.
+  // Assemble the matrix globally now to finish the assembly.
   uint rn = 0;
   {
     struct crystal cr;
     crystal_init(&cr, c);
-    sarray_transfer(struct mij_t, &umat, p, 1, &cr);
+    sarray_transfer(struct mij_t, &mat2, p, 1, &cr);
     crystal_free(&cr);
 
-    array_init(struct mij_t, &mat, umat.n);
-    if (umat.n > 0) {
-      sarray_sort_2(struct mij_t, umat.ptr, umat.n, r, 1, c, 1, bfr);
-      struct mij_t *pu = (struct mij_t *)umat.ptr;
+    array_init(struct mij_t, &mat1, mat2.n);
+    if (mat2.n > 0) {
+      sarray_sort_2(struct mij_t, mat2.ptr, mat2.n, r, 1, c, 1, bfr);
+      struct mij_t *pm2 = (struct mij_t *)mat2.ptr;
       uint i = 0, j;
-      while (i < umat.n) {
+      while (i < mat2.n) {
         j = i + 1;
-        while (j < umat.n && (pu[i].r == pu[j].r) && (pu[i].c == pu[j].c))
-          pu[i].v += pu[j].v, j++;
-        array_cat(struct mij_t, &mat, &pu[i], 1);
+        while (j < mat2.n && (pm2[i].r == pm2[j].r) && (pm2[i].c == pm2[j].c))
+          pm2[i].v += pm2[j].v, j++;
+        array_cat(struct mij_t, &mat1, &pm2[i], 1);
         i = j, rn++;
       }
     }
-    array_free(&umat);
+    array_free(&mat2);
   }
 
   // Find the column ids in each processor.
@@ -120,45 +120,45 @@ static struct csr_mat *parilu_setup_mat(uint n, const slong *const vtx,
     uint cmax = MAX_ARRAY_SIZE;
     cols = tcalloc(ulong, cmax);
 
-    sarray_sort(struct mij_t, mat.ptr, mat.n, c, 1, bfr);
-    struct mij_t *pm = (struct mij_t *)mat.ptr;
+    sarray_sort(struct mij_t, mat1.ptr, mat1.n, c, 1, bfr);
+    struct mij_t *pm1 = (struct mij_t *)mat1.ptr;
     uint i = 0, j;
-    while (i < mat.n) {
-      pm[i].idx = cn;
+    while (i < mat1.n) {
+      pm1[i].idx = cn;
       j = i + 1;
-      while (j < mat.n && pm[i].c == pm[j].c)
-        pm[j].idx = cn, j++;
+      while (j < mat1.n && pm1[i].c == pm1[j].c)
+        pm1[j].idx = cn, j++;
 
       if (cn == cmax) {
         cmax += cmax / 2 + 1;
         cols = trealloc(ulong, cols, cmax);
       }
-      cols[cn] = pm[i].c, cn++, i = j;
+      cols[cn] = pm1[i].c, cn++, i = j;
     }
   }
 
   // Setup the CSR matrix.
   {
-    sarray_sort_2(struct mij_t, mat.ptr, mat.n, r, 1, c, 1, bfr);
+    sarray_sort_2(struct mij_t, mat1.ptr, mat1.n, r, 1, c, 1, bfr);
 
-    struct mij_t *pm = (struct mij_t *)mat.ptr;
+    struct mij_t *pm1 = (struct mij_t *)mat1.ptr;
     M->n = rn;
     M->off = tcalloc(uint, rn + 1);
     M->row = tcalloc(ulong, rn);
-    M->idx = tcalloc(uint, mat.n);
-    M->val = tcalloc(scalar, mat.n);
+    M->idx = tcalloc(uint, mat1.n);
+    M->val = tcalloc(scalar, mat1.n);
 
     uint i = 0, j, r = 0, nnz = 0;
-    while (i < mat.n) {
-      M->idx[i] = pm[i].idx, M->val[i] = pm[i].v, nnz++;
+    while (i < mat1.n) {
+      M->idx[i] = pm1[i].idx, M->val[i] = pm1[i].v, nnz++;
       j = i + 1;
-      while (j < mat.n && pm[i].r == pm[j].r)
-        M->idx[j] = pm[j].idx, M->val[j] = pm[j].v, j++, nnz++;
-      M->row[r] = pm[i].r, r++;
+      while (j < mat1.n && pm1[i].r == pm1[j].r)
+        M->idx[j] = pm1[j].idx, M->val[j] = pm1[j].v, j++, nnz++;
+      M->row[r] = pm1[i].r, r++;
       M->off[r] = nnz;
     }
-    // Check invariant: mat.n == nnz
-    assert(nnz == mat.n);
+    // Check invariant: mat1.n == nnz
+    assert(nnz == mat1.n);
 
     M->cn = cn;
     M->col = tcalloc(ulong, cn);
