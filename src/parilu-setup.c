@@ -8,36 +8,24 @@ struct mij_t {
   scalar v;
 };
 
-struct csr_mat {
-  uint rn, cn, *off, *idx;
-  ulong *row, *col;
-  scalar *val;
-};
-
-static void parilu_mat_free(struct csr_mat *const M) {
+static void parilu_mat_free(struct parilu_mat_t *const M) {
   if (M) {
-    if (M->off)
-      free(M->off);
-    if (M->idx)
-      free(M->idx);
-    if (M->row)
-      free(M->row);
-    if (M->col)
-      free(M->col);
-    if (M->val)
-      free(M->val);
-    free(M);
+    parilu_free(&M->off);
+    parilu_free(&M->idx);
+    parilu_free(&M->row);
+    parilu_free(&M->col);
+    parilu_free(&M->val);
   }
+  parilu_free(&M);
 }
 
-static struct csr_mat *parilu_setup_mat(uint n, const slong *const vtx,
-                                        const uint nnz, const uint *const row,
-                                        const uint *const col,
-                                        const double *const val,
-                                        const struct comm *const c,
-                                        buffer *bfr) {
+static struct parilu_mat_t *
+parilu_setup_mat(uint n, const slong *const vtx, const uint nnz,
+                 const uint *const row, const uint *const col,
+                 const double *const val, const struct comm *const c,
+                 buffer *bfr) {
   // Check if the global matrix is empty and return if it is.
-  struct csr_mat *M = tcalloc(struct csr_mat, 1);
+  struct parilu_mat_t *M = tcalloc(struct parilu_mat_t, 1);
   {
     slong nnzg = nnz, wrk;
     comm_allreduce(c, gs_long, gs_add, &nnzg, 1, &wrk);
@@ -170,9 +158,9 @@ static struct csr_mat *parilu_setup_mat(uint n, const slong *const vtx,
   return M;
 }
 
-static struct csr_mat *
-parilu_setup_laplacian_mat(const struct csr_mat *const M) {
-  struct csr_mat *L = tcalloc(struct csr_mat, 1);
+static struct parilu_mat_t *
+parilu_setup_laplacian_mat(const struct parilu_mat_t *const M) {
+  struct parilu_mat_t *L = tcalloc(struct parilu_mat_t, 1);
 
   const uint rn = L->rn = M->rn;
   L->off = tcalloc(uint, M->rn + 1);
@@ -241,9 +229,10 @@ struct parilu_t *parilu_setup(uint n, const slong *const vertex, const uint nnz,
   comm_init(&c, comm);
 
   // Setup CSR mat for ILU system.
-  struct csr_mat *M = parilu_setup_mat(n, vertex, nnz, row, col, val, &c, bfr);
+  struct parilu_mat_t *M =
+      parilu_setup_mat(n, vertex, nnz, row, col, val, &c, bfr);
   // Create the Laplacian matrix of the system.
-  struct csr_mat *L = parilu_setup_laplacian_mat(M);
+  struct parilu_mat_t *L = parilu_setup_laplacian_mat(M);
 
   parilu_mat_free(M);
   parilu_mat_free(L);

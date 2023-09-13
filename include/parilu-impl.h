@@ -101,4 +101,17 @@ PARILU_INTERN void parilu_assert_(int cond, const char *fmt, const char *file,
 
 PARILU_INTERN void parilu_error(const char *fmt, ...);
 
+/**
+ * Structure for a sparse matrix.
+ */
+struct parilu_mat_t {
+  uint rn;     /**< Local number of rows (local to processor). */
+  ulong *row;  /**< Global row numbers (size: rn). */
+  uint *off;   /**< Local offsets for each row (size: rn + 1). */
+  uint *idx;   /**< Local column indices (size: off[rn + 1], range: [0, cn)). */
+  uint cn;     /**< Local number of columns. */
+  ulong *col;  /**< Global column numbers (size: cn). */
+  scalar *val; /**< Local values (size: off[rn + 1]). */
+};
+
 #endif // __LIBPARILU_IMPL_H__
