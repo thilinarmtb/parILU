@@ -37,7 +37,8 @@ static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
 static void parilu_fiedler(const struct parilu_mat_t *M,
                            const struct comm *const c, buffer *bfr,
                            const int verbose) {
-  parilu_debug(c, verbose, "parilu_partition: Compute Fiedler vector");
+  parilu_debug(c, verbose, PARILU_INFO,
+               "parilu_partition: Compute Fiedler vector.");
 
   const uint nr = M->rn;
 
@@ -48,7 +49,8 @@ static void parilu_fiedler(const struct parilu_mat_t *M,
     comm_scan(out, c, gs_long, gs_add, &in, 1, wrk);
     startg = out[0][0], nrg = out[1][0];
     if (nrg == 0) {
-      parilu_debug(c, verbose, "parilu_partition: Number of global rows = 0");
+      parilu_debug(c, verbose, PARILU_WARN,
+                   "parilu_partition: Number of global rows = 0.");
       return;
     }
   }

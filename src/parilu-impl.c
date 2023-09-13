@@ -17,19 +17,32 @@ void parilu_free_(void **ptr) { free(*ptr), *ptr = NULL; }
  *
  * @param c MPI communicator wrapper from gslib.
  * @param verbose Verbosity level.
+ * @param type Type of the debug message.
  * @param fmt Format string.
  * @param ... Format string arguments.
  */
 void parilu_debug(const struct comm *const c, const int verbose,
-                  const char *fmt, ...) {
-  va_list args;
-  va_start(args, fmt);
+                  const parilu_debug_t type, const char *fmt, ...) {
   if (verbose > 0 && c->id == 0) {
+    switch (type) {
+    case PARILU_INFO:
+      printf("[INFO]: ");
+      break;
+    case PARILU_WARN:
+      printf("[WARN]: ");
+      break;
+    case PARILU_ERROR:
+      printf("[ERROR]: ");
+      break;
+    default:
+      break;
+    }
+    va_list args;
+    va_start(args, fmt);
     vprintf(fmt, args);
-    printf("\n");
+    printf("\n"), fflush(stdout);
+    va_end(args);
   }
-  fflush(stdout);
-  va_end(args);
 }
 
 /**

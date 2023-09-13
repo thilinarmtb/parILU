@@ -24,7 +24,8 @@ parilu_setup_mat(const uint n, const slong *const vtx, const uint nnz,
                  const uint *const row, const uint *const col,
                  const double *const val, const struct comm *const c,
                  buffer *bfr, const int verbose) {
-  parilu_debug(c, verbose, "parilu_setup_mat: n = %u, nnz = %u", n, nnz);
+  parilu_debug(c, verbose, PARILU_INFO, "parilu_setup_mat: n = %u, nnz = %u.",
+               n, nnz);
 
   // Check if the global matrix is empty and return if it is.
   struct parilu_mat_t *M = tcalloc(struct parilu_mat_t, 1);
@@ -45,7 +46,8 @@ parilu_setup_mat(const uint n, const slong *const vtx, const uint nnz,
   {
     slong minv = LONG_MAX;
     for (uint i = 0; i < nnz; i++) {
-      parilu_assert(row[i] < n && col[i] < n, "row[i] >= n and/or col[i] >= n");
+      parilu_assert(row[i] < n && col[i] < n,
+                    "row[i] >= n and/or col[i] >= n.");
       ulong r = vtx[row[i]], c = vtx[col[i]];
       if (r == 0 || c == 0)
         continue;
@@ -57,7 +59,7 @@ parilu_setup_mat(const uint n, const slong *const vtx, const uint nnz,
 
     slong wrk;
     comm_allreduce(c, gs_long, gs_min, &minv, 1, &wrk);
-    parilu_assert(minv == 1, "minv != 1");
+    parilu_assert(minv == 1, "minv != 1.");
   }
 
   // Assemble the entries locally by summing up the entries with same row and
@@ -145,7 +147,7 @@ parilu_setup_mat(const uint n, const slong *const vtx, const uint nnz,
       M->off[r] = nnz;
     }
     // Check invariant: mat1.n == nnz
-    parilu_assert(nnz == mat1.n, "nnz != mat1.n");
+    parilu_assert(nnz == mat1.n, "nnz != mat1.n.");
 
     M->cn = cn;
     M->col = tcalloc(ulong, cn);
@@ -219,7 +221,8 @@ struct parilu_t *parilu_setup(uint n, const slong *const vertex, const uint nnz,
   comm_init(&c, comm);
 
   // Initialize ILU struct.
-  parilu_debug(&c, verbose, "parilu_setup: Initialize ILU options.");
+  parilu_debug(&c, verbose, PARILU_INFO,
+               "parilu_setup: Initialize ILU options.");
   struct parilu_t *ilu = tcalloc(struct parilu_t, 1);
   ilu->pivot = options->pivot;
   ilu->verbose = options->verbose;
@@ -230,21 +233,22 @@ struct parilu_t *parilu_setup(uint n, const slong *const vertex, const uint nnz,
   ilu->nlvls = 0, ilu->lvl_off = NULL, ilu->perm = NULL;
 
   // Setup CSR mat for ILU system.
-  parilu_debug(&c, verbose, "parilu_setup: Setup the matrix.");
+  parilu_debug(&c, verbose, PARILU_INFO, "parilu_setup: Setup the matrix.");
   struct parilu_mat_t *M =
       parilu_setup_mat(n, vertex, nnz, row, col, val, &c, bfr, verbose - 1);
 
   // Create the Laplacian matrix of the system.
-  parilu_debug(&c, verbose, "parilu_setup: Setup the laplacian matrix.");
+  parilu_debug(&c, verbose, PARILU_INFO,
+               "parilu_setup: Setup the laplacian matrix.");
   struct parilu_mat_t *L = parilu_setup_laplacian_mat(M);
 
   // Parition the matrix with parRSB.
-  parilu_debug(&c, verbose, "parilu_setup: Partition the matrix.");
+  parilu_debug(&c, verbose, PARILU_INFO, "parilu_setup: Partition the matrix.");
 
   parilu_mat_free(M), parilu_mat_free(L);
   comm_free(&c);
 
-  parilu_debug(&c, verbose, "parilu_setup: done.");
+  parilu_debug(&c, verbose, PARILU_INFO, "parilu_setup: done.");
 
   return ilu;
 }
