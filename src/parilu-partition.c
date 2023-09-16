@@ -1,6 +1,9 @@
 #include "parilu-impl.h"
 #include <math.h>
 
+#define MAX_ITER 50
+#define MAX_PASS 50
+
 static inline void orthogonalize(scalar *const v, const uint vn,
                                  const struct comm *const c) {
   // v^T \cdot \underline{1}
@@ -37,14 +40,84 @@ static inline void normalize(scalar *const v, const uint n,
     v[i] *= normi;
 }
 
-static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
-                           const scalar *const init, const uint miter,
-                           const uint mpass, const struct comm *const c,
-                           buffer *bfr, const int verbose) {
+static void tqli(scalar *const evec, scalar *const eval, const uint n,
+                 const scalar *const alpha, const scalar *const beta) {
   return;
 }
 
-static void parilu_fiedler(const struct parilu_mat_t *M,
+static uint lanczos_aux(scalar *const alpha, scalar *const beta,
+                        scalar *const rr, const scalar *const init,
+                        struct parilu_mat_op_t *op, const struct comm *const c,
+                        const uint miter, buffer *bfr, const int verbose) {
+  uint iter = 0;
+  for (iter = 0; iter < miter; iter++) {
+  }
+
+  return iter;
+}
+
+static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
+                           const uint miter, const uint mpass,
+                           const struct comm *const c, buffer *bfr,
+                           const int verbose) {
+  const uint rn = M->rn;
+  struct parilu_mat_op_t *op = parilu_mat_op_setup(M, c, bfr);
+
+  scalar *alpha = NULL, *beta = NULL, *rr = NULL;
+  scalar *evec = NULL, *eval = NULL;
+  {
+    alpha = tcalloc(scalar, miter);
+    beta = tcalloc(scalar, miter);
+    rr = tcalloc(scalar, (miter + 1) * rn);
+    evec = tcalloc(scalar, miter * miter);
+    eval = tcalloc(scalar, miter);
+  }
+
+  for (uint pass = 0; pass < mpass; pass++) {
+    uint iter =
+        lanczos_aux(alpha, beta, rr, fiedler, op, c, iter, bfr, verbose);
+
+    // Find eigenvalues and eigenvectors of the tridiagonal matrix.
+    tqli(evec, eval, iter, alpha, beta);
+
+    // Find min eigenvalue and associated eigenvector.
+    scalar eval_min = fabs(eval[0]);
+    uint eval_min_idx = 0;
+    {
+      for (uint i = 1; i < rn; i++) {
+        if (fabs(eval[i]) < eval_min) {
+          eval_min = eval[i];
+          eval_min_idx = i;
+        }
+      }
+    }
+
+    // Project eigenvector onto the original space.
+    {
+      for (uint i = 0; i < rn; i++) {
+        fiedler[i] = 0;
+        for (uint j = 0; j < iter; j++)
+          fiedler[i] += evec[j + eval_min_idx * iter] * rr[j * rn + i];
+      }
+      orthogonalize(fiedler, rn, c);
+    }
+
+    if (iter < miter)
+      break;
+  }
+
+  // Free memory.
+  {
+    parilu_free(&alpha);
+    parilu_free(&beta);
+    parilu_free(&rr);
+    parilu_free(&evec);
+    parilu_free(&eval);
+    parilu_mat_op_free(&op);
+  }
+}
+
+static void parilu_fiedler(scalar *const fiedler, const struct parilu_mat_t *M,
                            const struct comm *const c, buffer *bfr,
                            const int verbose) {
   parilu_debug(c, verbose, PARILU_INFO,
@@ -58,28 +131,39 @@ static void parilu_fiedler(const struct parilu_mat_t *M,
     slong out[2][1], wrk[2][1], in = nr;
     comm_scan(out, c, gs_long, gs_add, &in, 1, wrk);
     startg = out[0][0], nrg = out[1][0];
-    if (nrg == 0) {
-      parilu_debug(c, verbose, PARILU_WARN,
-                   "parilu_partition: Number of global rows = 0.");
-      return;
-    }
+    parilu_debug(c, verbose, PARILU_INFO,
+                 "parilu_partition: Number of global rows = %ld.", nrg);
+  }
+
+  // Return if the global matrix is empty.
+  if (nrg == 0) {
+    parilu_debug(c, verbose, PARILU_WARN,
+                 "parilu_partition: Number of global rows = 0.");
+    return;
+  }
+
+  // Setup miter, mpass. These should be set by user.
+  uint miter = MAX_ITER, mpass = MAX_PASS;
+  {
+    if (nrg < miter)
+      miter = nrg;
+    parilu_debug(c, verbose, PARILU_INFO,
+                 "parilu_partition: Number of iterations = %d.", miter);
+    parilu_debug(c, verbose, PARILU_INFO,
+                 "parilu_partition: Number of passes = %d.", mpass);
   }
 
   // Initialize and ortho-normalize the initial guess for Lanczos.
-  scalar *init = tcalloc(scalar, nr);
   {
     for (uint i = 0; i < nr; i++)
-      init[i] = startg + 1.0;
-    orthogonalize(init, nr, c);
-    normalize(init, nr, c);
+      fiedler[i] = startg + 1.0;
+    orthogonalize(fiedler, nr, c);
+    normalize(fiedler, nr, c);
   }
 
-  scalar *fiedler = tcalloc(scalar, nr);
-  parilu_lanczos(fiedler, M, init, 50, 50, c, bfr, verbose);
+  parilu_lanczos(fiedler, M, miter, mpass, c, bfr, verbose);
 
   normalize(fiedler, nr, c);
-
-  parilu_free(&init), parilu_free(&fiedler);
 }
 
 struct parilu_mat_t *parilu_partition(const struct parilu_mat_t *const M,
@@ -87,3 +171,6 @@ struct parilu_mat_t *parilu_partition(const struct parilu_mat_t *const M,
                                       const int verbose) {
   return NULL;
 }
+
+#undef MAX_ITER
+#undef MAX_PASS
