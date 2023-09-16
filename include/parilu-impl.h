@@ -120,23 +120,31 @@ struct parilu_mat_t {
 
 PARILU_INTERN struct parilu_mat_t *
 parilu_mat_setup(const uint n, const slong *const vtx, const uint nnz,
-                 const uint *const row, const uint *const col,
-                 const double *const val, const struct comm *const c,
-                 buffer *const bfr, const int verbose);
+                 const uint *row, const uint *col, const double *val,
+                 const struct comm *c, buffer *const bfr, const int verbose);
 
 PARILU_INTERN struct parilu_mat_t *
-parilu_mat_laplacian(const struct parilu_mat_t *const M);
+parilu_mat_laplacian_setup(const struct parilu_mat_t *const M);
 
-PARILU_INTERN struct gs_data *parilu_mat_vec_setup(const struct parilu_mat_t *M,
-                                                   const struct comm *const c,
-                                                   buffer *const bfr);
+PARILU_INTERN void parilu_mat_free(struct parilu_mat_t **M);
 
-PARILU_INTERN void parilu_mat_vec(scalar *const y,
-                                  const struct parilu_mat_t *const M,
-                                  const scalar *const x,
-                                  const struct gs_data *const gsh,
-                                  buffer *const bfr);
+/**
+ * Structure to store the data for the matrix-vector product.
+ */
+struct parilu_mat_op_t {
+  const struct parilu_mat_t *M; /**< Matrix. */
+  struct gs_data *gsh;          /**< gs handle required to fetch data. */
+  scalar *wrk; /**< Work array for the matrix-vector product. */
+};
 
-PARILU_INTERN void parilu_mat_free(struct parilu_mat_t *M);
+PARILU_INTERN struct parilu_mat_op_t *
+parilu_mat_op_setup(const struct parilu_mat_t *M, const struct comm *c,
+                    buffer *bfr);
+
+PARILU_INTERN void parilu_mat_op(scalar *const y,
+                                 const struct parilu_mat_op_t *op,
+                                 const scalar *x, buffer *bfr);
+
+PARILU_INTERN void parilu_mat_op_free(struct parilu_mat_op_t **op);
 
 #endif // __LIBPARILU_IMPL_H__

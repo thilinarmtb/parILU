@@ -32,13 +32,17 @@ struct parilu_t *parilu_setup(uint n, const slong *const vertex, const uint nnz,
   parilu_debug(&c, verbose, PARILU_INFO,
                "parilu_setup: Initialize ILU options.");
   struct parilu_t *ilu = tcalloc(struct parilu_t, 1);
-  ilu->pivot = options->pivot;
-  ilu->verbose = options->verbose;
-  ilu->null_space = options->null_space;
-  ilu->tol = options->tol;
-  ilu->nnz_per_row = options->nnz_per_row;
-  // Things to be set during factorization.
-  ilu->nlvls = 0, ilu->lvl_off = NULL, ilu->perm = NULL;
+  {
+    ilu->pivot = options->pivot;
+    ilu->verbose = options->verbose;
+    ilu->null_space = options->null_space;
+    ilu->tol = options->tol;
+    ilu->nnz_per_row = options->nnz_per_row;
+    // Things to be set during factorization.
+    ilu->nlvls = 0;
+    ilu->lvl_off = NULL;
+    ilu->perm = NULL;
+  }
 
   // Setup CSR mat for ILU system.
   parilu_debug(&c, verbose, PARILU_INFO, "parilu_setup: Setup the matrix.");
@@ -47,13 +51,13 @@ struct parilu_t *parilu_setup(uint n, const slong *const vertex, const uint nnz,
 
   // Create the Laplacian matrix of the system.
   parilu_debug(&c, verbose, PARILU_INFO,
-               "parilu_setup: Setup the laplacian matrix.");
-  struct parilu_mat_t *L = parilu_mat_laplacian(M);
+               "parilu_setup: Setup the Laplacian matrix.");
+  struct parilu_mat_t *L = parilu_mat_laplacian_setup(M);
 
   // Parition the matrix with parRSB.
   parilu_debug(&c, verbose, PARILU_INFO, "parilu_setup: Partition the matrix.");
 
-  parilu_mat_free(M), parilu_mat_free(L);
+  parilu_mat_free(&M), parilu_mat_free(&L);
   comm_free(&c);
 
   parilu_debug(&c, verbose, PARILU_INFO, "parilu_setup: done.");

@@ -149,7 +149,8 @@ struct parilu_mat_t *parilu_mat_setup(const uint n, const slong *const vtx,
   return M;
 }
 
-struct parilu_mat_t *parilu_mat_laplacian(const struct parilu_mat_t *const M) {
+struct parilu_mat_t *
+parilu_mat_laplacian_setup(const struct parilu_mat_t *const M) {
   parilu_assert(M != NULL, "M == NULL.");
   parilu_assert(M->off != NULL, "M->off == NULL.");
   parilu_assert(M->idx != NULL, "M->idx == NULL.");
@@ -158,7 +159,7 @@ struct parilu_mat_t *parilu_mat_laplacian(const struct parilu_mat_t *const M) {
 
   struct parilu_mat_t *L = tcalloc(struct parilu_mat_t, 1);
   const uint rn = L->rn = M->rn;
-  L->off = tcalloc(uint, M->rn + 1);
+  L->off = tcalloc(uint, rn + 1);
   memcpy(L->off, M->off, sizeof(uint) * (rn + 1));
 
   L->row = tcalloc(ulong, rn);
@@ -186,15 +187,76 @@ struct parilu_mat_t *parilu_mat_laplacian(const struct parilu_mat_t *const M) {
   return L;
 }
 
-void parilu_mat_free(struct parilu_mat_t *M) {
-  if (M) {
+void parilu_mat_free(struct parilu_mat_t **M_) {
+  if (M_ && *M_) {
+    struct parilu_mat_t *M = *M_;
     parilu_free(&M->off);
     parilu_free(&M->idx);
     parilu_free(&M->row);
     parilu_free(&M->col);
     parilu_free(&M->val);
   }
-  parilu_free(&M);
+  parilu_free(M_);
+}
+
+struct parilu_mat_op_t *parilu_mat_op_setup(const struct parilu_mat_t *M,
+                                            const struct comm *const c,
+                                            buffer *const bfr) {
+  struct parilu_mat_op_t *op = tcalloc(struct parilu_mat_op_t, 1);
+
+  // Setup the gs handle for the communication required for the matrix-vector
+  // product.
+  const uint rn = M->rn, nnz = M->off[rn];
+  {
+    buffer_reserve(bfr, (nnz + rn) * sizeof(slong));
+    slong *const ids = (slong *)bfr->ptr;
+    for (uint i = 0; i < nnz; i++)
+      ids[i] = -M->col[M->idx[i]];
+    for (uint i = 0; i < rn; i++)
+      ids[nnz + i] = M->row[i];
+    op->gsh = gs_setup(ids, nnz + rn, c, 0, gs_pairwise, 0);
+  }
+
+  // Allocate work array set the pointer to the original matrix.
+  {
+    op->wrk = tcalloc(scalar, nnz + rn);
+    op->M = M;
+  }
+
+  return op;
+}
+
+void parilu_mat_op(scalar *const y, const struct parilu_mat_op_t *const op,
+                   const scalar *const x, buffer *const bfr) {
+  // Bring the entries necessry to do the mat-vec. Only rn entries are owned by
+  // this process. Rest has to be brought in.
+  const struct parilu_mat_t *const M = op->M;
+  const uint rn = M->rn, nnz = M->off[rn];
+  scalar *const wrk = op->wrk;
+  {
+    for (uint i = 0; i < rn; i++)
+      wrk[nnz + i] = x[i];
+    gs(wrk, gs_double, gs_add, 0, op->gsh, bfr);
+  }
+
+  // Now perform the local mat-vec.
+  {
+    for (uint i = 0; i < rn; i++) {
+      scalar sum = 0;
+      for (uint j = M->idx[i], je = M->idx[i + 1]; j < je; j++)
+        sum += M->val[j] * wrk[j];
+      y[i] = sum;
+    }
+  }
+}
+
+void parilu_mat_op_free(struct parilu_mat_op_t **op_) {
+  if (op_ && *op_) {
+    struct parilu_mat_op_t *op = *op_;
+    gs_free(op->gsh);
+    parilu_free(&op->wrk);
+  }
+  parilu_free(op_);
 }
 
 #undef MAX_ARRAY_SIZE
