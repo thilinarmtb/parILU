@@ -133,17 +133,16 @@ PARILU_INTERN void parilu_mat_free(struct parilu_mat_t **M);
  */
 struct parilu_mat_op_t {
   const struct parilu_mat_t *M; /**< Matrix. */
-  struct gs_data *gsh;          /**< gs handle required to fetch data. */
+  struct gs_data *gsh;          /**< gs handle required for communication. */
+  buffer bfr;                   /**< gslib buffer for gs workspace. */
   scalar *wrk; /**< Work array for the matrix-vector product. */
 };
 
 PARILU_INTERN struct parilu_mat_op_t *
-parilu_mat_op_setup(const struct parilu_mat_t *M, const struct comm *c,
-                    buffer *bfr);
+parilu_mat_op_setup(const struct parilu_mat_t *M, const struct comm *c);
 
-PARILU_INTERN void parilu_mat_op(scalar *const y,
-                                 const struct parilu_mat_op_t *op,
-                                 const scalar *x, buffer *bfr);
+PARILU_INTERN void parilu_mat_op(scalar *const y, struct parilu_mat_op_t *op,
+                                 const scalar *x);
 
 PARILU_INTERN void parilu_mat_op_free(struct parilu_mat_op_t **op);
 

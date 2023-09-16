@@ -200,16 +200,21 @@ void parilu_mat_free(struct parilu_mat_t **M_) {
 }
 
 struct parilu_mat_op_t *parilu_mat_op_setup(const struct parilu_mat_t *M,
-                                            const struct comm *const c,
-                                            buffer *const bfr) {
-  struct parilu_mat_op_t *op = tcalloc(struct parilu_mat_op_t, 1);
-
+                                            const struct comm *const c) {
   // Setup the gs handle for the communication required for the matrix-vector
   // product.
   const uint rn = M->rn, nnz = M->off[rn];
+
+  // Initialize the buffer.
+  struct parilu_mat_op_t *op = tcalloc(struct parilu_mat_op_t, 1);
   {
-    buffer_reserve(bfr, (nnz + rn) * sizeof(slong));
-    slong *const ids = (slong *)bfr->ptr;
+    buffer_init(&op->bfr, MAX_ARRAY_SIZE);
+    buffer_reserve(&op->bfr, (nnz + rn) * sizeof(slong));
+  }
+
+  // Setup the gs handle.
+  {
+    slong *const ids = (slong *)op->bfr.ptr;
     for (uint i = 0; i < nnz; i++)
       ids[i] = -M->col[M->idx[i]];
     for (uint i = 0; i < rn; i++)
@@ -226,8 +231,8 @@ struct parilu_mat_op_t *parilu_mat_op_setup(const struct parilu_mat_t *M,
   return op;
 }
 
-void parilu_mat_op(scalar *const y, const struct parilu_mat_op_t *const op,
-                   const scalar *const x, buffer *const bfr) {
+void parilu_mat_op(scalar *const y, struct parilu_mat_op_t *const op,
+                   const scalar *const x) {
   // Bring the entries necessry to do the mat-vec. Only rn entries are owned by
   // this process. Rest has to be brought in.
   const struct parilu_mat_t *const M = op->M;
@@ -236,7 +241,7 @@ void parilu_mat_op(scalar *const y, const struct parilu_mat_op_t *const op,
   {
     for (uint i = 0; i < rn; i++)
       wrk[nnz + i] = x[i];
-    gs(wrk, gs_double, gs_add, 0, op->gsh, bfr);
+    gs(wrk, gs_double, gs_add, 0, op->gsh, &op->bfr);
   }
 
   // Now perform the local mat-vec.
@@ -253,6 +258,7 @@ void parilu_mat_op(scalar *const y, const struct parilu_mat_op_t *const op,
 void parilu_mat_op_free(struct parilu_mat_op_t **op_) {
   if (op_ && *op_) {
     struct parilu_mat_op_t *op = *op_;
+    buffer_free(&op->bfr);
     gs_free(op->gsh);
     parilu_free(&op->wrk);
   }

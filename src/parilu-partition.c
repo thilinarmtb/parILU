@@ -48,7 +48,7 @@ static void tqli(scalar *const evec, scalar *const eval, const uint n,
 static uint lanczos_aux(scalar *const alpha, scalar *const beta,
                         scalar *const rr, const scalar *const init,
                         struct parilu_mat_op_t *op, const struct comm *const c,
-                        const uint miter, buffer *bfr, const int verbose) {
+                        const uint miter, const int verbose) {
   uint iter = 0;
   for (iter = 0; iter < miter; iter++) {
   }
@@ -58,10 +58,9 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
 
 static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
                            const uint miter, const uint mpass,
-                           const struct comm *const c, buffer *bfr,
-                           const int verbose) {
+                           const struct comm *const c, const int verbose) {
   const uint rn = M->rn;
-  struct parilu_mat_op_t *op = parilu_mat_op_setup(M, c, bfr);
+  struct parilu_mat_op_t *op = parilu_mat_op_setup(M, c);
 
   scalar *alpha = NULL, *beta = NULL, *rr = NULL;
   scalar *evec = NULL, *eval = NULL;
@@ -74,8 +73,7 @@ static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
   }
 
   for (uint pass = 0; pass < mpass; pass++) {
-    uint iter =
-        lanczos_aux(alpha, beta, rr, fiedler, op, c, iter, bfr, verbose);
+    uint iter = lanczos_aux(alpha, beta, rr, fiedler, op, c, iter, verbose);
 
     // Find eigenvalues and eigenvectors of the tridiagonal matrix.
     tqli(evec, eval, iter, alpha, beta);
@@ -161,7 +159,7 @@ static void parilu_fiedler(scalar *const fiedler, const struct parilu_mat_t *M,
     normalize(fiedler, nr, c);
   }
 
-  parilu_lanczos(fiedler, M, miter, mpass, c, bfr, verbose);
+  parilu_lanczos(fiedler, M, miter, mpass, c, verbose);
 
   normalize(fiedler, nr, c);
 }
