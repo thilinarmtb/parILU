@@ -231,8 +231,8 @@ struct parilu_mat_op_t *parilu_mat_op_setup(const struct parilu_mat_t *M,
   return op;
 }
 
-void parilu_mat_op(scalar *const y, struct parilu_mat_op_t *const op,
-                   const scalar *const x) {
+void parilu_mat_op_apply(scalar *const y, struct parilu_mat_op_t *const op,
+                         const scalar *const x) {
   // Bring the entries necessry to do the mat-vec. Only rn entries are owned by
   // this process. Rest has to be brought in.
   const struct parilu_mat_t *const M = op->M;

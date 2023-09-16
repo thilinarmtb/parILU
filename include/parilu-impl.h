@@ -141,8 +141,9 @@ struct parilu_mat_op_t {
 PARILU_INTERN struct parilu_mat_op_t *
 parilu_mat_op_setup(const struct parilu_mat_t *M, const struct comm *c);
 
-PARILU_INTERN void parilu_mat_op(scalar *const y, struct parilu_mat_op_t *op,
-                                 const scalar *x);
+PARILU_INTERN void parilu_mat_op_apply(scalar *const y,
+                                       struct parilu_mat_op_t *op,
+                                       const scalar *x);
 
 PARILU_INTERN void parilu_mat_op_free(struct parilu_mat_op_t **op);
 
