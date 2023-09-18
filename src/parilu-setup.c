@@ -17,11 +17,11 @@
  * @param comm MPI communicator.
  * @param bfr Pointer to the buffer struct used for work arrays.
  */
-struct parilu_t *parilu_setup(uint n, const slong *const vertex, const uint nnz,
-                              const uint *const row, const uint *const col,
-                              const double *const val,
+struct parilu_t *parilu_setup(const uint n, const slong *const vertex,
+                              const uint nnz, const uint *const row,
+                              const uint *const col, const double *const val,
                               const struct parilu_opts_t *const options,
-                              MPI_Comm comm, buffer *bfr) {
+                              const MPI_Comm comm, buffer *const bfr) {
   const int verbose = options->verbose;
 
   // Create a gslib comm out of MPI_Comm

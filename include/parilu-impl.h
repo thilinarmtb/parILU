@@ -86,9 +86,8 @@ PARILU_INTERN void parilu_free_(void **ptr);
 
 typedef enum { PARILU_INFO, PARILU_WARN, PARILU_ERROR } parilu_debug_t;
 
-PARILU_INTERN void parilu_debug(const struct comm *const c, const int verbose,
-                                const parilu_debug_t type, const char *fmt,
-                                ...);
+PARILU_INTERN void parilu_debug(const struct comm *c, int verbose,
+                                parilu_debug_t type, const char *fmt, ...);
 
 PARILU_INTERN void parilu_assert_(int cond, const char *fmt, const char *file,
                                   unsigned line);
@@ -119,12 +118,12 @@ struct parilu_mat_t {
 };
 
 PARILU_INTERN struct parilu_mat_t *
-parilu_mat_setup(const uint n, const slong *const vtx, const uint nnz,
-                 const uint *row, const uint *col, const double *val,
-                 const struct comm *c, buffer *const bfr, const int verbose);
+parilu_mat_setup(uint n, const slong *vtx, uint nnz, const uint *row,
+                 const uint *col, const double *val, const struct comm *c,
+                 buffer *bfr, int verbose);
 
 PARILU_INTERN struct parilu_mat_t *
-parilu_mat_laplacian_setup(const struct parilu_mat_t *const M);
+parilu_mat_laplacian_setup(const struct parilu_mat_t *M);
 
 PARILU_INTERN void parilu_mat_free(struct parilu_mat_t **M);
 
@@ -141,8 +140,7 @@ struct parilu_mat_op_t {
 PARILU_INTERN struct parilu_mat_op_t *
 parilu_mat_op_setup(const struct parilu_mat_t *M, const struct comm *c);
 
-PARILU_INTERN void parilu_mat_op_apply(scalar *const y,
-                                       struct parilu_mat_op_t *op,
+PARILU_INTERN void parilu_mat_op_apply(scalar *y, struct parilu_mat_op_t *op,
                                        const scalar *x);
 
 PARILU_INTERN void parilu_mat_op_free(struct parilu_mat_op_t **op);

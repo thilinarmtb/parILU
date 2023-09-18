@@ -56,11 +56,11 @@ PARILU_EXTERN struct parilu_opts_t *parilu_init(int *argc, char **argv[]);
 
 struct parilu_t;
 
-PARILU_EXTERN struct parilu_t *
-parilu_setup(uint n, const slong *const vertex, const uint nnz,
-             const uint *const row, const uint *const col,
-             const double *const val, const struct parilu_opts_t *const options,
-             MPI_Comm comm, buffer *bfr);
+PARILU_EXTERN struct parilu_t *parilu_setup(uint n, const slong *vertex,
+                                            uint nnz, const uint *row,
+                                            const uint *col, const double *val,
+                                            const struct parilu_opts_t *options,
+                                            MPI_Comm comm, buffer *bfr);
 
 PARILU_EXTERN void parilu_solve(double *x, const struct parilu_t *ilu,
                                 const double *b, buffer *bfr);

@@ -42,9 +42,7 @@ static inline void normalize(scalar *const v, const uint n,
 }
 
 static void tqli(scalar *const evec, scalar *const eval, const uint n,
-                 const scalar *const alpha, const scalar *const beta) {
-  return;
-}
+                 const scalar *const alpha, const scalar *const beta) {}
 
 static uint lanczos_aux(scalar *const alpha, scalar *const beta,
                         scalar *const rr, const scalar *const f,

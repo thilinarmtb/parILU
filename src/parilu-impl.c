@@ -22,7 +22,7 @@ void parilu_free_(void **ptr) { free(*ptr), *ptr = NULL; }
  * @param ... Format string arguments.
  */
 void parilu_debug(const struct comm *const c, const int verbose,
-                  const parilu_debug_t type, const char *fmt, ...) {
+                  const parilu_debug_t type, const char *const fmt, ...) {
   if (verbose > 0 && c->id == 0) {
     switch (type) {
     case PARILU_INFO:
@@ -56,8 +56,8 @@ void parilu_debug(const struct comm *const c, const int verbose,
  * @param file Name of the file where the assertion is made.
  * @param line Line number where the assertion is made.
  */
-void parilu_assert_(int cond, const char *msg, const char *file,
-                    const unsigned line) {
+void parilu_assert_(const int cond, const char *const msg,
+                    const char *const file, const unsigned line) {
   if (!cond) {
     fprintf(stderr, "%s:%d Assertion failure: %s", file, line, msg);
     exit(EXIT_FAILURE);
@@ -72,7 +72,7 @@ void parilu_assert_(int cond, const char *msg, const char *file,
  * @param fmt Format string.
  * @param ... Format string arguments.
  */
-void parilu_error(const char *fmt, ...) {
+void parilu_error(const char *const fmt, ...) {
   va_list args;
   va_start(args, fmt);
   int nchars = vfprintf(stderr, fmt, args);
