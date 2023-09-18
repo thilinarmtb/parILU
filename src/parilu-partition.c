@@ -49,6 +49,10 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
                         struct parilu_mat_op_t *op, const struct comm *const c,
                         const uint miter, const scalar rtol,
                         const int verbose) {
+  parilu_debug(c, verbose, PARILU_INFO,
+               "parilu_partition: Lanczos, miter = %d, rtol = %e.", miter,
+               rtol);
+
   const struct parilu_mat_t *M = op->M;
   const uint rn = M->rn;
 
@@ -72,6 +76,8 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
   scalar rtr = 1, rtz1 = 1, rtz2, pap1 = 0, pap2;
   uint iter = 0;
   for (iter = 1; iter <= miter; iter++) {
+    parilu_debug(c, verbose, PARILU_INFO,
+                 "parilu_partition: Lanczos, iter = %d.", iter);
     rtz2 = rtz1, rtz1 = rtr;
     scalar beta_i = rtz1 / rtz2;
     if (iter == 1)
