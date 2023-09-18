@@ -4,6 +4,7 @@
 #define MAX_ITER 50
 #define MAX_PASS 50
 #define RTOL 1e-5
+#define TOL 1e-12
 
 static inline void orthogonalize(scalar *const v, const uint vn,
                                  const struct comm *const c) {
@@ -42,7 +43,134 @@ static inline void normalize(scalar *const v, const uint n,
 }
 
 static void tqli(scalar *const evec, scalar *const eval, const uint n,
-                 const scalar *const alpha, const scalar *const beta) {}
+                 const scalar *const alpha, const scalar *const beta,
+                 const struct comm *const c, const int verbose) {
+  if (n == 0)
+    return;
+
+  // Allocate and initialize workspace. Initialize evec to identity matrix.
+  scalar *d = NULL, *e = NULL;
+  {
+    d = tcalloc(scalar, n);
+    for (uint i = 0; i < n; i++)
+      d[i] = alpha[i];
+
+    e = tcalloc(scalar, n);
+    for (uint i = 0; i < n - 1; i++)
+      e[i] = beta[i];
+
+    for (uint i = 0; i < n; i++) {
+      for (uint j = 0; j < n; j++)
+        evec[i * n + j] = 0;
+      evec[i * n + i] = 1;
+    }
+  }
+
+  uint m;
+  for (uint l = 0; l < n; l++) {
+    uint iter = 0;
+    do {
+      for (m = l; m < n - 1; m++) {
+        scalar dd = fabs(d[m]) + fabs(d[m + 1]);
+        if (fabs(e[m]) / dd < TOL)
+          break;
+      }
+
+      if (m != l) {
+        sint diverge = (iter++ == 30), wrk;
+        comm_allreduce(c, gs_int, gs_add, &diverge, 1, &wrk);
+        if (diverge) {
+          parilu_debug(c, verbose, PARILU_WARN,
+                       "tqli: Too many iterations: %d.", iter);
+        }
+        for (uint i = 0; i < n; i++)
+          eval[i] = d[i];
+        return;
+      }
+
+      scalar g = (d[l + 1] - d[l]) / (2 * e[l]);
+      scalar r = sqrt(g * g + 1);
+      g = d[m] - d[l] + e[l] / (g + copysign(r, g));
+
+      scalar s = 1, c = 1, p = 0;
+      sint i;
+      for (i = m - 1; i >= (sint)l; i--) {
+        scalar f = s * e[i], b = c * e[i];
+        if (fabs(f) >= fabs(g)) {
+          c = g / f;
+          r = sqrt(c * c + 1);
+          e[i + 1] = f * r;
+          s = 1 / r;
+          c *= s;
+        } else {
+          s = f / g;
+          r = sqrt(s * s + 1);
+          e[i + 1] = g * r;
+          c = 1 / r;
+          s *= c;
+        }
+
+        g = d[i + 1] - p;
+        r = (d[i] - g) * s + 2 * c * b;
+        p = s * r;
+        d[i + 1] = g + p;
+        g = c * r - b;
+
+        for (uint k = 0; k < n; k++) {
+          f = evec[k * n + i + 1];
+          evec[k * n + i + 1] = s * evec[k * n + i] + c * f;
+          evec[k * n + i] = c * evec[k * n + i] - s * f;
+        }
+      }
+
+      if (r < TOL && i >= (sint)l)
+        continue;
+
+      d[l] -= p;
+      e[l] = g;
+      e[m] = 0;
+    } while (m != l);
+  }
+
+  // Transpose the vectors in evec to match C ordering.
+  for (uint i = 0; i < n; i++) {
+    for (uint j = 0; j < i; j++) {
+      scalar tmp = evec[i * n + j];
+      evec[i * n + j] = evec[j * n + i];
+      evec[j * n + i] = tmp;
+    }
+  }
+
+  // Normalize eigenvectors and copy eigenvalues.
+  {
+    for (uint k = 0; k < n; k++) {
+      e[k] = 0;
+      for (uint i = 0; i < n; i++)
+        e[k] += evec[k * n + i] * evec[k * n + i];
+
+      sint neg_or_zero = (e[k] <= TOL), wrk;
+      comm_allreduce(c, gs_int, gs_add, &neg_or_zero, 1, &wrk);
+      if (neg_or_zero) {
+        parilu_debug(c, verbose, PARILU_ERROR,
+                     "tqli: Negative or zero norm: %g.", e[k]);
+      }
+
+      e[k] = sqrt(fabs(e[k]));
+      scalar scale = 1.0 / e[k];
+      for (uint i = 0; i < n; i++)
+        evec[i * n + k] *= scale;
+    }
+
+    for (uint i = 0; i < n; i++)
+      eval[i] = d[i];
+  }
+
+  // Free workspace.
+  {
+    parilu_free(&d);
+    parilu_free(&e);
+  }
+}
 
 static uint lanczos_aux(scalar *const alpha, scalar *const beta,
                         scalar *const rr, const scalar *const f,
@@ -150,7 +278,7 @@ static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
         lanczos_aux(alpha, beta, rr, fiedler, op, c, miter, rtol, verbose);
 
     // Find eigenvalues and eigenvectors of the tridiagonal matrix.
-    tqli(evec, eval, iter, alpha, beta);
+    tqli(evec, eval, iter, alpha, beta, c, verbose);
 
     // Find min eigenvalue and associated eigenvector.
     scalar eval_min = fabs(eval[0]);
