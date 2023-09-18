@@ -8,9 +8,10 @@ function print_help() {
   echo "  --build-type <Release|Debug> Build type."
   echo "  --build-dir <build directory> Build directory."
   echo "  --install-prefix <install prefix> Install prefix."
-  echo "  --enable-docs Enable or disable building documentation."
-  echo "  --enable-asan Enable or disable address sanitizer."
+  echo "  --enable-docs Enable building documentation."
+  echo "  --enable-asan Enable address sanitizer."
   echo "  --install Install the project."
+  echo "  --docs Build documentation with Doxygen+Sphinx."
   echo "  --format Format the source code with clang-format."
   echo "  --format-check Check if source formatting is compliant with clang-format."
   echo "  --tidy Run clang-tidy."
@@ -24,6 +25,7 @@ function print_help() {
 : ${PARILU_ENABLE_DOCS:=OFF}
 : ${PARILU_ENABLE_ASAN:=OFF}
 : ${PARILU_INSTALL:=NO}
+: ${PARILU_DOCS:=NO}
 : ${PARILU_FORMAT:=NO}
 : ${PARILU_FORMAT_CHECK:=NO}
 : ${PARILU_TIDY:=NO}
@@ -65,6 +67,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --install)
       PARILU_INSTALL="YES"
+      shift
+      ;;
+    --docs)
+      PARILU_DOCS="YES"
       shift
       ;;
     --format)
@@ -118,10 +124,10 @@ if [[ "${PARILU_TIDY}" == "YES" ]]; then
   fi
 fi
 
-if [[ ${PARILU_ENABLE_DOCS} == "YES" ]]; then
-  cmake --build ${PARILU_BUILD_DIR} --target Sphinx -j4
+if [[ ${PARILU_DOCS} == "YES" ]]; then
+  cmake --build ${PARILU_BUILD_DIR} --target docs -j4
   if [[ $? -ne 0 ]]; then
-    echo "Error: Building docs with Sphinx failed."
+    echo "Error: Building docs with Doxygen+Sphinx failed."
     exit 1
   fi
 fi
