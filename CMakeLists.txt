@@ -59,6 +59,8 @@ if (CLANG_FORMAT)
     COMMENT "Running clang-format check ...")
 endif()
 
+# Configure .clang-tidy.in to generate .clang-tidy.
+configure_file(${CMAKE_SOURCE_DIR}/.clang-tidy.in ${CMAKE_SOURCE_DIR}/.clang-tidy @ONLY)
 # Add clang-tidy as a custom target if available.
 find_program(CLANG_TIDY NAMES clang-tidy)
 if (CLANG_TIDY)

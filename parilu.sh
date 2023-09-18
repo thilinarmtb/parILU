@@ -3,13 +3,13 @@
 function print_help() {
   echo "Usage: $0 [options]"
   echo "Options:"
-  echo "  -c|--cc <compiler> Set the compiler to use for the build."
-  echo "  -t|--type <Release|Debug> Build type."
-  echo "  -p|--prefix <install prefix> Install prefix."
-  echo "  -b|--build-dir <build directory> Build directory."
-  echo "  -d|--docs Enable or disable building documentation."
-  echo "  -a|--asan Enable or disable address sanitizer."
-  echo "  -h|--help Print this help message and exit."
+  echo "  --help Print this help message and exit."
+  echo "  --cc <compiler> Set the compiler to use for the build."
+  echo "  --build-type <Release|Debug> Build type."
+  echo "  --build-dir <build directory> Build directory."
+  echo "  --install-prefix <install prefix> Install prefix."
+  echo "  --enable-docs Enable or disable building documentation."
+  echo "  --enable-asan Enable or disable address sanitizer."
   echo "  --install Install the project."
   echo "  --format Format the source code with clang-format."
   echo "  --format-check Check if source formatting is compliant with clang-format."
@@ -31,37 +31,37 @@ function print_help() {
 # Handle command line arguments.
 while [[ $# -gt 0 ]]; do
   case $1 in
-    -c|--cc)
+    --help)
+      print_help
+      exit 0
+      ;;
+    --cc)
       PARILU_CC="$2"
       shift
       shift
       ;;
-    -t|--type)
+    --build-type)
       PARILU_BUILD_TYPE="$2"
       shift
       shift
       ;;
-    -p|--prefix)
-      PARILU_INSTALL_PREFIX="$2"
-      shift
-      shift
-      ;;
-    -b|--build-dir)
+    --build-dir)
       PARILU_BUILD_DIR="$2"
       shift
       shift
       ;;
-    -d|--docs)
+    --install-prefix)
+      PARILU_INSTALL_PREFIX="$2"
+      shift
+      shift
+      ;;
+    --enable-docs)
       PARILU_ENABLE_DOCS="ON"
       shift
       ;;
-    -a|--asan)
+    --enable-asan)
       PARILU_ENABLE_ASAN="ON"
       shift
-      ;;
-    -h|--help)
-      print_help
-      exit 0
       ;;
     --install)
       PARILU_INSTALL="YES"

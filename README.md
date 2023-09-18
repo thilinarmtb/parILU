@@ -14,17 +14,19 @@ conda env create -f environment-dev.yml
 conda activate mylib-dev
 ```
 
-You can format the source code with `clang-format` using the option `--format yes`.
+You can format the source code with `clang-format` using the option `--format` if you
+make any changes to the source code. Also, you can use `clang-tidy` for static analysis
+as well.
 ```
-./parilu.sh --format yes
+./parilu.sh --format --tidy
 ```
 
-Then simply run `parilu.sh` script to build and install the library.
+Then simply pass build options and targets to be built to `parilu.sh` script:
 ```sh
-./parilu.sh --docs yes --install yes
+./parilu.sh --enable-docs --enable-asan --install
 ```
 
-Use `-h` or `--help` to see all the options supported by `parilu.sh` script.
+Use `--help` to see all the options and targets supported by `parilu.sh` script.
 ```
 ./parilu.sh --help
 ```
