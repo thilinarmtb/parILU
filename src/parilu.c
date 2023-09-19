@@ -29,8 +29,8 @@ static void parilu_print_help(const char *name) {
   printf("  --parilu-help, Prints this help message and exit.\n");
 }
 
-static inline int parilu_parse_number(void **out, const char *const arg,
-                                      const uint type) {
+static int parilu_parse_number(void **out, const char *const arg,
+                               const uint type) {
   union {
     uint u;
     double d;
@@ -126,16 +126,6 @@ struct parilu_opts_t *parilu_parse_opts(int *argc, char **argv[]) {
 
   return opts;
 }
-
-/**
- * @ingroup parilu_user_api_functions
- *
- * @brief Finalize parilu. Frees the memory allocated for the struct parilu_t
- * returned by parilu_setup() and sets the pointer to NULL.
- *
- * @param parilu Pointer to the struct parilu_t* to be freed.
- */
-void parilu_finalize(struct parilu_t **parilu) { parilu_free(parilu); }
 
 #undef PARILU_VERBOSE
 #undef PARILU_TYPE
