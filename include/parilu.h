@@ -52,7 +52,7 @@ struct parilu_opts_t {
                                total nnz per row/col < p. */
 };
 
-PARILU_EXTERN struct parilu_opts_t *parilu_init(int *argc, char **argv[]);
+PARILU_EXTERN struct parilu_opts_t *parilu_parse_opts(int *argc, char **argv[]);
 
 struct parilu_t;
 

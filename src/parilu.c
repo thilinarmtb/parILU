@@ -55,8 +55,8 @@ static inline int parilu_parse_number(void **out, const char *const arg,
   return 0;
 }
 
-static void parilu_parse_opts(struct parilu_opts_t *parilu, int *argc,
-                              char ***argv_) {
+static void parilu_parse_opts_aux(struct parilu_opts_t *parilu, int *argc,
+                                  char ***argv_) {
   parilu->verbose = PARILU_VERBOSE;
   parilu->type = PARILU_TYPE;
   parilu->tol = PARILU_TOL;
@@ -106,13 +106,6 @@ static void parilu_parse_opts(struct parilu_opts_t *parilu, int *argc,
       break;
     }
   }
-
-  // Remove parsed arguments from argv. We just need to update the pointers
-  // since command line arguments are not transient and available until the
-  // end of the program.
-  for (int i = optind; i < *argc; i++)
-    argv[i - optind] = argv[i];
-  *argc -= optind;
 }
 
 /**
@@ -126,10 +119,10 @@ static void parilu_parse_opts(struct parilu_opts_t *parilu, int *argc,
  *
  * @return struct parilu_opts_t*
  */
-struct parilu_opts_t *parilu_init(int *argc, char **argv[]) {
+struct parilu_opts_t *parilu_parse_opts(int *argc, char **argv[]) {
   struct parilu_opts_t *opts = parilu_calloc(struct parilu_opts_t, 1);
 
-  parilu_parse_opts(opts, argc, argv);
+  parilu_parse_opts_aux(opts, argc, argv);
 
   return opts;
 }
@@ -138,7 +131,7 @@ struct parilu_opts_t *parilu_init(int *argc, char **argv[]) {
  * @ingroup parilu_user_api_functions
  *
  * @brief Finalize parilu. Frees the memory allocated for the struct parilu_t
- * returned by parilu_init() and sets the pointer to NULL.
+ * returned by parilu_setup() and sets the pointer to NULL.
  *
  * @param parilu Pointer to the struct parilu_t* to be freed.
  */
