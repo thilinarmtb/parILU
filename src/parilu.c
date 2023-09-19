@@ -65,12 +65,15 @@ static void parilu_parse_opts(struct parilu_opts_t *parilu, int *argc,
   static struct option long_options[] = {
       {"parilu-verbose", optional_argument, 0, PARILU_INPUT_VERBOSE},
       {"parilu-type", optional_argument, 0, PARILU_INPUT_TYPE},
+      {"parilu-tol", optional_argument, 0, PARILU_INPUT_TOL},
+      {"parilu-nnz-per-row", optional_argument, 0, PARILU_INPUT_NNZ_PER_ROW},
       {"parilu-help", no_argument, 0, PARILU_INPUT_HELP},
       {0, 0, 0, 0}};
 
-  char **argv = *argv_;
   void *out[] = {(void *)&parilu->verbose, (void *)&parilu->type,
                  (void *)&parilu->tol, (void *)&parilu->nnz_per_row};
+
+  char **argv = *argv_;
   for (;;) {
     int opt = getopt_long(*argc, argv, "", long_options, NULL);
     if (opt == -1)
