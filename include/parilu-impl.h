@@ -45,7 +45,6 @@ struct parilu_t {
 
   unsigned null_space; /**< Is there a null space? */
   unsigned pivot;      /**< Use pivoting or not. */
-  unsigned verbose;    /**< Verbosity level. */
 
   scalar
       tol; /**< 1st dropping rule: An entry a_ij is dropped abs(a_ij) < tol. */
@@ -86,8 +85,10 @@ PARILU_INTERN void parilu_free_(void **ptr);
 
 typedef enum { PARILU_INFO, PARILU_WARN, PARILU_ERROR } parilu_log_t;
 
-PARILU_INTERN void parilu_log(const struct comm *c, int verbose,
-                              parilu_log_t type, const char *fmt, ...);
+PARILU_INTERN void parilu_log_init(int verbose);
+
+PARILU_INTERN void parilu_log(const struct comm *c, parilu_log_t type,
+                              const char *fmt, ...);
 
 PARILU_INTERN void parilu_assert_(int cond, const char *fmt, const char *file,
                                   unsigned line);

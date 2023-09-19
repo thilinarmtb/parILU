@@ -10,38 +10,55 @@
  */
 void parilu_free_(void **ptr) { free(*ptr), *ptr = NULL; }
 
+static int verbose_ = 0;
+
+/**
+ * @ingroup parilu_internal_api_functions
+ *
+ * @brief Setup verbose level for parilu_log() function.
+ *
+ * @param verbose Verbosity level.
+ */
+void parilu_log_init(const int verbose) { verbose_ = verbose; }
+
 /**
  * @ingroup parilu_internal_api_functions
  *
  * @brief Print a debug message if the verbosity level is greater than 0.
  *
  * @param c MPI communicator wrapper from gslib.
- * @param verbose Verbosity level.
  * @param type Type of the debug message.
  * @param fmt Format string.
  * @param ... Format string arguments.
  */
-void parilu_log(const struct comm *const c, const int verbose,
-                const parilu_log_t type, const char *const fmt, ...) {
-  if (verbose > 0 && c->id == 0) {
-    switch (type) {
-    case PARILU_INFO:
-      printf("[INFO]: ");
-      break;
-    case PARILU_WARN:
-      printf("[WARN]: ");
-      break;
-    case PARILU_ERROR:
+void parilu_log(const struct comm *const c, const parilu_log_t type,
+                const char *const fmt, ...) {
+  if (c->id == 0) {
+    int print = 0;
+    if ((verbose_ > 0) && (type == PARILU_ERROR)) {
       printf("[ERROR]: ");
-      break;
-    default:
-      break;
+      print = 1;
     }
-    va_list args;
-    va_start(args, fmt);
-    vprintf(fmt, args);
-    printf("\n"), fflush(stdout);
-    va_end(args);
+    printf("[INFO]: ");
+
+    if ((verbose_ > 1) && (type == PARILU_WARN)) {
+      printf("[WARN]: ");
+      print = 1;
+    }
+
+    if ((verbose_ > 2) && (type == PARILU_INFO)) {
+      printf("[INFO]: ");
+      print = 1;
+    }
+
+    if (print) {
+      va_list args;
+      va_start(args, fmt);
+      vprintf(fmt, args);
+      printf("\n");
+      fflush(stdout);
+      va_end(args);
+    }
   }
 }
 

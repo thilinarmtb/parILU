@@ -23,17 +23,17 @@ struct parilu_t *parilu_setup(const uint n, const slong *const vertex,
                               const struct parilu_opts_t *const options,
                               const MPI_Comm comm, buffer *const bfr) {
   const int verbose = options->verbose;
+  parilu_log_init(verbose);
 
   // Create a gslib comm out of MPI_Comm
   struct comm c;
   comm_init(&c, comm);
 
   // Initialize ILU struct.
-  parilu_log(&c, verbose, PARILU_INFO, "parilu_setup: Initialize ILU options.");
+  parilu_log(&c, PARILU_INFO, "parilu_setup: Initialize ILU options.");
   struct parilu_t *ilu = tcalloc(struct parilu_t, 1);
   {
     ilu->pivot = options->pivot;
-    ilu->verbose = options->verbose;
     ilu->null_space = options->null_space;
     ilu->tol = options->tol;
     ilu->nnz_per_row = options->nnz_per_row;
@@ -44,22 +44,21 @@ struct parilu_t *parilu_setup(const uint n, const slong *const vertex,
   }
 
   // Setup CSR mat for ILU system.
-  parilu_log(&c, verbose, PARILU_INFO, "parilu_setup: Setup the matrix.");
+  parilu_log(&c, PARILU_INFO, "parilu_setup: Setup the matrix.");
   struct parilu_mat_t *M =
       parilu_mat_setup(n, vertex, nnz, row, col, val, &c, bfr, verbose - 1);
 
   // Create the Laplacian matrix of the system.
-  parilu_log(&c, verbose, PARILU_INFO,
-             "parilu_setup: Setup the Laplacian matrix.");
+  parilu_log(&c, PARILU_INFO, "parilu_setup: Setup the Laplacian matrix.");
   struct parilu_mat_t *L = parilu_mat_laplacian_setup(M);
 
   // Parition the matrix with parRSB.
-  parilu_log(&c, verbose, PARILU_INFO, "parilu_setup: Partition the matrix.");
+  parilu_log(&c, PARILU_INFO, "parilu_setup: Partition the matrix.");
 
   parilu_mat_free(&M), parilu_mat_free(&L);
   comm_free(&c);
 
-  parilu_log(&c, verbose, PARILU_INFO, "parilu_setup: done.");
+  parilu_log(&c, PARILU_INFO, "parilu_setup: done.");
 
   return ilu;
 }
