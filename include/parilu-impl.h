@@ -102,8 +102,6 @@ PARILU_INTERN void parilu_assert_(int cond, const char *fmt, const char *file,
  */
 #define parilu_assert(COND, MSG) parilu_assert_(COND, MSG, __FILE__, __LINE__)
 
-PARILU_INTERN void parilu_error(const char *fmt, ...);
-
 /**
  * Structure for a sparse matrix.
  */

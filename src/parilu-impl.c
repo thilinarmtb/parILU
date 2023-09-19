@@ -63,20 +63,3 @@ void parilu_assert_(const int cond, const char *const msg,
     exit(EXIT_FAILURE);
   }
 }
-
-/**
- * @ingroup parilu_internal_api_functions
- *
- * @brief Print an error message and exit.
- *
- * @param fmt Format string.
- * @param ... Format string arguments.
- */
-void parilu_error(const char *const fmt, ...) {
-  va_list args;
-  va_start(args, fmt);
-  int nchars = vfprintf(stderr, fmt, args);
-  va_end(args);
-  parilu_assert(nchars >= 0, "vfprintf() failed in parilu_error().");
-  exit(EXIT_FAILURE);
-}
