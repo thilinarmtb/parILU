@@ -149,14 +149,24 @@
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv410parilu_logPCK4commKiK12parilu_log_tPCKcz">
-<span id="_CPPv310parilu_logPCK4commKiK12parilu_log_tPCKcz"></span><span id="_CPPv210parilu_logPCK4commKiK12parilu_log_tPCKcz"></span><span id="parilu_log__commCPC.iC.parilu_log_tC.cCPC.z"></span><span class="target" id="group__parilu__internal__api__functions_1ga5578a13c8007c43a87f5c38fbffb80b3"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">parilu_log</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">comm</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">c</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">verbose</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">parilu_log_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">type</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">fmt</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410parilu_logPCK4commKiK12parilu_log_tPCKcz" title="Permalink to this definition"></a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv415parilu_log_initKi">
+<span id="_CPPv315parilu_log_initKi"></span><span id="_CPPv215parilu_log_initKi"></span><span id="parilu_log_init__iC"></span><span class="target" id="group__parilu__internal__api__functions_1ga7543f7f0881bae7cc84184c5a94b047c"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">parilu_log_init</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">verbose</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415parilu_log_initKi" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Setup verbose level for <a class="reference internal" href="#group__parilu__internal__api__functions_1ga5dae01d74bf97811d106d7ca96908c96"><span class="std std-ref">parilu_log()</span></a> function. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>verbose</strong> – Verbosity level. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410parilu_logPCK4commK12parilu_log_tPCKcz">
+<span id="_CPPv310parilu_logPCK4commK12parilu_log_tPCKcz"></span><span id="_CPPv210parilu_logPCK4commK12parilu_log_tPCKcz"></span><span id="parilu_log__commCPC.parilu_log_tC.cCPC.z"></span><span class="target" id="group__parilu__internal__api__functions_1ga5dae01d74bf97811d106d7ca96908c96"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">parilu_log</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">comm</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">c</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">parilu_log_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">type</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">fmt</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410parilu_logPCK4commK12parilu_log_tPCKcz" title="Permalink to this definition"></a><br /></dt>
 <dd><p>Print a debug message if the verbosity level is greater than 0. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>c</strong> – MPI communicator wrapper from gslib. </p></li>
-<li><p><strong>verbose</strong> – Verbosity level. </p></li>
 <li><p><strong>type</strong> – Type of the debug message. </p></li>
 <li><p><strong>fmt</strong> – Format string. </p></li>
 <li><p><strong>...</strong> – Format string arguments. </p></li>
@@ -212,12 +222,6 @@
 <dt class="sig sig-object cpp" id="_CPPv4N8parilu_t5pivotE">
 <span id="_CPPv3N8parilu_t5pivotE"></span><span id="_CPPv2N8parilu_t5pivotE"></span><span id="parilu_t::pivot__unsigned"></span><span class="target" id="structparilu__t_1af0ad0d438168e185f450d3a8bdc72208"></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pivot</span></span></span><a class="headerlink" href="#_CPPv4N8parilu_t5pivotE" title="Permalink to this definition"></a><br /></dt>
 <dd><p>Use pivoting or not. </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N8parilu_t7verboseE">
-<span id="_CPPv3N8parilu_t7verboseE"></span><span id="_CPPv2N8parilu_t7verboseE"></span><span id="parilu_t::verbose__unsigned"></span><span class="target" id="structparilu__t_1a5cd0930a2542e4b35a77a73fd3520ea6"></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">verbose</span></span></span><a class="headerlink" href="#_CPPv4N8parilu_t7verboseE" title="Permalink to this definition"></a><br /></dt>
-<dd><p>Verbosity level. </p>
 </dd></dl>
 
 <dl class="cpp var">
