@@ -20,8 +20,8 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
-set(SOURCES src/parilu-parse-opts.c src/parilu-impl.c src/parilu-setup.c src/parilu-mat.c
-  src/parilu-partition.c)
+set(SOURCES src/parilu-parse-opts.c src/parilu-impl.c src/parilu-setup.c
+  src/parilu-mat.c src/parilu-partition.c)
 add_library(parilu SHARED ${SOURCES})
 set_target_properties(parilu PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION 1
   PUBLIC_HEADER include/parilu.h)

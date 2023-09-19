@@ -39,6 +39,7 @@ static int parilu_parse_number(void **out, const char *const arg,
   char *end = NULL;
   switch (type) {
   case 0:
+    // NOLINTNEXTLINE
     u.u = (uint)strtol(arg, &end, 10);
     memcpy(*out, &u.u, sizeof(uint));
     break;
@@ -55,7 +56,7 @@ static int parilu_parse_number(void **out, const char *const arg,
   return 0;
 }
 
-static void parilu_parse_opts_aux(struct parilu_opts_t *parilu, int *argc,
+static void parilu_parse_opts_aux(struct parilu_opts_t *parilu, const int *argc,
                                   char ***argv_) {
   parilu->verbose = PARILU_VERBOSE;
   parilu->type = PARILU_TYPE;

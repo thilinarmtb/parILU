@@ -39,7 +39,6 @@ void parilu_log(const struct comm *const c, const parilu_log_t type,
       printf("[ERROR]: ");
       print = 1;
     }
-    printf("[INFO]: ");
 
     if ((verbose_ > 1) && (type == PARILU_WARN)) {
       printf("[WARN]: ");
