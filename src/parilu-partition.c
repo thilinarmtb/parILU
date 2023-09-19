@@ -80,8 +80,8 @@ static void tqli(scalar *const evec, scalar *const eval, const uint n,
         sint diverge = (iter++ == 30), wrk;
         comm_allreduce(c, gs_int, gs_add, &diverge, 1, &wrk);
         if (diverge) {
-          parilu_debug(c, verbose, PARILU_WARN,
-                       "tqli: Too many iterations: %d.", iter);
+          parilu_log(c, verbose, PARILU_WARN, "tqli: Too many iterations: %d.",
+                     iter);
         }
         for (uint i = 0; i < n; i++)
           eval[i] = d[i];
@@ -151,8 +151,8 @@ static void tqli(scalar *const evec, scalar *const eval, const uint n,
       sint neg_or_zero = (e[k] <= TOL), wrk;
       comm_allreduce(c, gs_int, gs_add, &neg_or_zero, 1, &wrk);
       if (neg_or_zero) {
-        parilu_debug(c, verbose, PARILU_ERROR,
-                     "tqli: Negative or zero norm: %g.", e[k]);
+        parilu_log(c, verbose, PARILU_ERROR, "tqli: Negative or zero norm: %g.",
+                   e[k]);
       }
 
       e[k] = sqrt(fabs(e[k]));
@@ -177,9 +177,8 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
                         struct parilu_mat_op_t *op, const struct comm *const c,
                         const uint miter, const scalar rtol,
                         const int verbose) {
-  parilu_debug(c, verbose, PARILU_INFO,
-               "parilu_partition: Lanczos, miter = %d, rtol = %e.", miter,
-               rtol);
+  parilu_log(c, verbose, PARILU_INFO,
+             "parilu_partition: Lanczos, miter = %d, rtol = %e.", miter, rtol);
 
   const struct parilu_mat_t *M = op->M;
   const uint rn = M->rn;
@@ -204,8 +203,8 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
   scalar rtr = 1, rtz1 = 1, rtz2, pap1 = 0, pap2;
   uint iter = 0;
   for (iter = 1; iter <= miter; iter++) {
-    parilu_debug(c, verbose, PARILU_INFO,
-                 "parilu_partition: Lanczos, iter = %d.", iter);
+    parilu_log(c, verbose, PARILU_INFO, "parilu_partition: Lanczos, iter = %d.",
+               iter);
     rtz2 = rtz1, rtz1 = rtr;
     scalar beta_i = rtz1 / rtz2;
     if (iter == 1)
@@ -255,8 +254,8 @@ static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
                            const uint miter, const uint mpass,
                            const scalar rtol, const struct comm *const c,
                            const int verbose) {
-  parilu_debug(c, verbose, PARILU_INFO,
-               "parilu_partition: Compute Fiedler vector.");
+  parilu_log(c, verbose, PARILU_INFO,
+             "parilu_partition: Compute Fiedler vector.");
 
   const uint rn = M->rn;
   struct parilu_mat_op_t *op = parilu_mat_op_setup(M, c);
@@ -272,8 +271,8 @@ static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
   }
 
   for (uint pass = 0; pass < mpass; pass++) {
-    parilu_debug(c, verbose, PARILU_INFO,
-                 "parilu_partition: Lanczos, pass = %d.", pass);
+    parilu_log(c, verbose, PARILU_INFO, "parilu_partition: Lanczos, pass = %d.",
+               pass);
     uint iter =
         lanczos_aux(alpha, beta, rr, fiedler, op, c, miter, rtol, verbose);
 
@@ -320,8 +319,8 @@ static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
 static void parilu_fiedler(scalar *const fiedler, const struct parilu_mat_t *M,
                            const struct comm *const c, buffer *bfr,
                            const int verbose) {
-  parilu_debug(c, verbose, PARILU_INFO,
-               "parilu_partition: Compute Fiedler vector.");
+  parilu_log(c, verbose, PARILU_INFO,
+             "parilu_partition: Compute Fiedler vector.");
 
   const uint nr = M->rn;
 
@@ -331,14 +330,14 @@ static void parilu_fiedler(scalar *const fiedler, const struct parilu_mat_t *M,
     slong out[2][1], wrk[2][1], in = nr;
     comm_scan(out, c, gs_long, gs_add, &in, 1, wrk);
     startg = out[0][0], nrg = out[1][0];
-    parilu_debug(c, verbose, PARILU_INFO,
-                 "parilu_partition: Number of global rows = %ld.", nrg);
+    parilu_log(c, verbose, PARILU_INFO,
+               "parilu_partition: Number of global rows = %ld.", nrg);
   }
 
   // Return if the global matrix is empty.
   if (nrg == 0) {
-    parilu_debug(c, verbose, PARILU_WARN,
-                 "parilu_partition: Number of global rows = 0.");
+    parilu_log(c, verbose, PARILU_WARN,
+               "parilu_partition: Number of global rows = 0.");
     return;
   }
 
@@ -348,10 +347,10 @@ static void parilu_fiedler(scalar *const fiedler, const struct parilu_mat_t *M,
   {
     if (nrg < miter)
       miter = nrg;
-    parilu_debug(c, verbose, PARILU_INFO,
-                 "parilu_partition: Number of iterations = %d, Number of "
-                 "passes = %d, Relative residual = %lf.",
-                 miter, mpass, rtol);
+    parilu_log(c, verbose, PARILU_INFO,
+               "parilu_partition: Number of iterations = %d, Number of "
+               "passes = %d, Relative residual = %lf.",
+               miter, mpass, rtol);
   }
 
   // Initialize and ortho-normalize the initial guess for Lanczos.

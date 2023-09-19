@@ -14,8 +14,8 @@ struct parilu_mat_t *parilu_mat_setup(const uint n, const slong *const vtx,
                                       const double *const val,
                                       const struct comm *const c,
                                       buffer *const bfr, const int verbose) {
-  parilu_debug(c, verbose, PARILU_INFO, "parilu_mat_setup: n = %u, nnz = %u.",
-               n, nnz);
+  parilu_log(c, verbose, PARILU_INFO, "parilu_mat_setup: n = %u, nnz = %u.", n,
+             nnz);
 
   // Check if the global matrix is empty and return if it is.
   struct parilu_mat_t *M = tcalloc(struct parilu_mat_t, 1);

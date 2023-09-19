@@ -84,10 +84,10 @@ PARILU_INTERN void parilu_free_(void **ptr);
  */
 #define parilu_free(p) parilu_free_((void **)p)
 
-typedef enum { PARILU_INFO, PARILU_WARN, PARILU_ERROR } parilu_debug_t;
+typedef enum { PARILU_INFO, PARILU_WARN, PARILU_ERROR } parilu_log_t;
 
-PARILU_INTERN void parilu_debug(const struct comm *c, int verbose,
-                                parilu_debug_t type, const char *fmt, ...);
+PARILU_INTERN void parilu_log(const struct comm *c, int verbose,
+                              parilu_log_t type, const char *fmt, ...);
 
 PARILU_INTERN void parilu_assert_(int cond, const char *fmt, const char *file,
                                   unsigned line);

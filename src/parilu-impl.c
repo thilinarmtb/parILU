@@ -21,8 +21,8 @@ void parilu_free_(void **ptr) { free(*ptr), *ptr = NULL; }
  * @param fmt Format string.
  * @param ... Format string arguments.
  */
-void parilu_debug(const struct comm *const c, const int verbose,
-                  const parilu_debug_t type, const char *const fmt, ...) {
+void parilu_log(const struct comm *const c, const int verbose,
+                const parilu_log_t type, const char *const fmt, ...) {
   if (verbose > 0 && c->id == 0) {
     switch (type) {
     case PARILU_INFO:
