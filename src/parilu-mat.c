@@ -186,6 +186,59 @@ parilu_mat_laplacian_setup(const struct parilu_mat_t *const M) {
   return L;
 }
 
+PARILU_INTERN void parilu_mat_dump(const char *const file,
+                                   const struct parilu_mat_t *const M,
+                                   const struct comm *const c) {
+  struct data_t {
+    ulong r, c;
+    uint p;
+    scalar v;
+  };
+
+  // Copy the matrix data to an array.
+  struct array arr;
+  {
+    array_init(struct data_t, &arr, M->off[M->rn]);
+
+    struct data_t dt = {.p = 0};
+
+    for (uint i = 0; i < M->rn; i++) {
+      for (uint j = M->off[i], je = M->off[i + 1]; j < je; j++) {
+        dt.r = M->row[i], dt.c = M->col[M->idx[j]], dt.v = M->val[j];
+        array_cat(struct data_t, &arr, &dt, 1);
+      }
+    }
+  }
+
+  // Send the data to rank 0.
+  {
+    struct crystal cr;
+    crystal_init(&cr, c);
+    sarray_transfer(struct data_t, &arr, p, 0, &cr);
+    crystal_free(&cr);
+  }
+
+  // Write the data to file.
+  if (c->id) {
+    array_free(&arr);
+    return;
+  }
+
+  // Write to file.
+  {
+    FILE *fp = fopen(file, "w");
+    if (!fp)
+      parilu_log(c, PARILU_ERROR, "Failed to open file %s.", file);
+
+    const struct data_t *const ptr = (const struct data_t *)arr.ptr;
+    for (uint i = 0; i < arr.n; i++)
+      fprintf(fp, "%llu %llu %g\n", ptr[i].r, ptr[i].c, ptr[i].v);
+
+    array_free(&arr);
+    fclose(fp);
+  }
+}
+
 void parilu_mat_free(struct parilu_mat_t **M_) {
   if (M_ && *M_) {
     struct parilu_mat_t *M = *M_;

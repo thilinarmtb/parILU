@@ -124,6 +124,10 @@ parilu_mat_setup(uint n, const slong *vtx, uint nnz, const uint *row,
 PARILU_INTERN struct parilu_mat_t *
 parilu_mat_laplacian_setup(const struct parilu_mat_t *M);
 
+PARILU_INTERN void parilu_mat_dump(const char *file,
+                                   const struct parilu_mat_t *M,
+                                   const struct comm *c);
+
 PARILU_INTERN void parilu_mat_free(struct parilu_mat_t **M);
 
 /**
