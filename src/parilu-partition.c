@@ -1,8 +1,9 @@
 #include "parilu-impl.h"
 #include <math.h>
 
-#define MAX_ITER 50
-#define MAX_PASS 50
+#define MAX_LANCZOS_ITER 50
+#define MAX_LANCZOS_PASS 50
+#define MAX_TQLI_ITER 30
 #define RTOL 1e-5
 #define TOL 1e-12
 
@@ -77,7 +78,7 @@ static void tqli(scalar *const evec, scalar *const eval, const uint n,
       }
 
       if (m != l) {
-        sint diverge = (iter++ == 30), wrk;
+        sint diverge = (iter++ == MAX_TQLI_ITER), wrk;
         comm_allreduce(c, gs_int, gs_add, &diverge, 1, &wrk);
         if (diverge) {
           parilu_log(c, PARILU_WARN, "tqli: Too many iterations: %d.", iter);
@@ -334,7 +335,7 @@ static void parilu_fiedler(scalar *const fiedler, const struct parilu_mat_t *M,
   }
 
   // Setup miter, mpass and rtol. These should be set by user.
-  uint miter = MAX_ITER, mpass = MAX_PASS;
+  uint miter = MAX_LANCZOS_ITER, mpass = MAX_LANCZOS_PASS;
   const scalar rtol = RTOL;
   {
     if (nrg < miter)
@@ -364,6 +365,8 @@ struct parilu_mat_t *parilu_partition(const struct parilu_mat_t *const M,
   return NULL;
 }
 
-#undef MAX_ITER
-#undef MAX_PASS
+#undef MAX_LANCZOS_ITER
+#undef MAX_LANCZOS_PASS
+#undef MAX_TQLI_ITER
 #undef RTOL
+#undef TOL

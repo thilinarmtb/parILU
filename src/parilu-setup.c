@@ -48,6 +48,8 @@ struct parilu_t *parilu_setup(const uint n, const slong *const vertex,
   struct parilu_mat_t *M =
       parilu_mat_setup(n, vertex, nnz, row, col, val, &c, bfr, verbose - 1);
 
+  parilu_mat_dump("system.txt", M, &c);
+
   // Create the Laplacian matrix of the system.
   parilu_log(&c, PARILU_INFO, "parilu_setup: Setup the Laplacian matrix.");
   struct parilu_mat_t *L = parilu_mat_laplacian_setup(M);

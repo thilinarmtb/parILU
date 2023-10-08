@@ -17,4 +17,4 @@ ExternalProject_Add(gslib
 add_dependencies(parilu gslib)
 target_link_libraries(parilu PRIVATE ${GSLIB_INSTALL_DIR}/lib/libgs.a)
 target_include_directories(parilu PRIVATE ${GSLIB_INSTALL_DIR}/include)
-target_include_directories(parilu-driver PRIVATE ${GSLIB_INSTALL_DIR}/include)
+target_include_directories(parilu-example PRIVATE ${GSLIB_INSTALL_DIR}/include)
