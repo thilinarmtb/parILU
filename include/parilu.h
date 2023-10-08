@@ -2,6 +2,7 @@
 #define __LIBPARILU_H__
 
 #include <gslib.h>
+#include <stdint.h>
 
 /**
  * @defgroup parilu_user_api_macros User API macros
@@ -56,9 +57,9 @@ PARILU_EXTERN struct parilu_opts_t *parilu_parse_opts(int *argc, char **argv[]);
 
 struct parilu_t;
 
-PARILU_EXTERN struct parilu_t *parilu_setup(uint n, const slong *vertex,
-                                            uint nnz, const uint *row,
-                                            const uint *col, const double *val,
+PARILU_EXTERN struct parilu_t *parilu_setup(uint32_t nnz, const uint64_t *row,
+                                            const uint64_t *col,
+                                            const double *val,
                                             const struct parilu_opts_t *options,
                                             MPI_Comm comm, buffer *bfr);
 

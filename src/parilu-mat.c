@@ -8,13 +8,13 @@ struct mij_t {
   scalar v;
 };
 
-struct parilu_mat_t *parilu_mat_setup(const uint n, const slong *const vtx,
-                                      const uint nnz, const uint *const row,
-                                      const uint *const col,
+struct parilu_mat_t *parilu_mat_setup(const uint32_t nnz,
+                                      const uint64_t *const row,
+                                      const uint64_t *const col,
                                       const double *const val,
                                       const struct comm *const c,
                                       buffer *const bfr, const int verbose) {
-  parilu_log(c, PARILU_INFO, "parilu_mat_setup: n = %u, nnz = %u.", n, nnz);
+  parilu_log(c, PARILU_INFO, "parilu_mat_setup: nnz = %u.", nnz);
 
   // Check if the global matrix is empty and return if it is.
   struct parilu_mat_t *M = tcalloc(struct parilu_mat_t, 1);
@@ -35,9 +35,7 @@ struct parilu_mat_t *parilu_mat_setup(const uint n, const slong *const vtx,
   {
     slong minv = LONG_MAX;
     for (uint i = 0; i < nnz; i++) {
-      parilu_assert(row[i] < n && col[i] < n,
-                    "row[i] >= n and/or col[i] >= n.");
-      ulong r = vtx[row[i]], c = vtx[col[i]];
+      ulong r = row[i], c = col[i];
       if (r == 0 || c == 0)
         continue;
       if ((slong)r < minv)

@@ -118,9 +118,9 @@ struct parilu_mat_t {
 };
 
 PARILU_INTERN struct parilu_mat_t *
-parilu_mat_setup(uint n, const slong *vtx, uint nnz, const uint *row,
-                 const uint *col, const double *val, const struct comm *c,
-                 buffer *bfr, int verbose);
+parilu_mat_setup(uint32_t nnz, const uint64_t *row, const uint64_t *col,
+                 const double *val, const struct comm *c, buffer *bfr,
+                 int verbose);
 
 PARILU_INTERN struct parilu_mat_t *
 parilu_mat_laplacian_setup(const struct parilu_mat_t *M);

@@ -4,22 +4,19 @@
  * @ingroup parilu_user_api_functions
  * @brief Setup parilu. Returns a pointer to a newly allocated struct parilu_t.
  *
- * @param n Number of local dofs in vertex array.
- * @param vertex Array of local dofs with global numbering.
  * @param nnz Number of nonzeros in the matrix.
- * @param row Row indices of the matrix which points to a global dof in \p
- * vertex array.
- * @param col Column indices of the matrix which points to a global dof in \p
- * vertex array.
- * @param val Values of the matrix.
+ * @param row Global row index or number.
+ * @param col Global column index or number.
+ * @param val Values of the matrix. val[i] is the value of the matrix entry
+ * (row[i], col[i]).
  * @param options Pointer to the struct parilu_opts_t which contains the
  * options.
  * @param comm MPI communicator.
  * @param bfr Pointer to the buffer struct used for work arrays.
  */
-struct parilu_t *parilu_setup(const uint n, const slong *const vertex,
-                              const uint nnz, const uint *const row,
-                              const uint *const col, const double *const val,
+struct parilu_t *parilu_setup(const uint32_t nnz, const uint64_t *const row,
+                              const uint64_t *const col,
+                              const double *const val,
                               const struct parilu_opts_t *const options,
                               const MPI_Comm comm, buffer *const bfr) {
   const int verbose = options->verbose;
@@ -46,7 +43,7 @@ struct parilu_t *parilu_setup(const uint n, const slong *const vertex,
   // Setup CSR mat for ILU system.
   parilu_log(&c, PARILU_INFO, "parilu_setup: Setup the matrix.");
   struct parilu_mat_t *M =
-      parilu_mat_setup(n, vertex, nnz, row, col, val, &c, bfr, verbose - 1);
+      parilu_mat_setup(nnz, row, col, val, &c, bfr, verbose - 1);
 
   parilu_mat_dump("system.txt", M, &c);
 
