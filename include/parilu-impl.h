@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include <gslib.h>
+
 #include "parilu-defs.h"
 #include "parilu-types.h"
 #include "parilu.h"
@@ -119,8 +121,7 @@ struct parilu_mat_t {
 
 PARILU_INTERN struct parilu_mat_t *
 parilu_mat_setup(uint32_t nnz, const uint64_t *row, const uint64_t *col,
-                 const double *val, const struct comm *c, buffer *bfr,
-                 int verbose);
+                 const double *val, const struct comm *c, int verbose);
 
 PARILU_INTERN struct parilu_mat_t *
 parilu_mat_laplacian_setup(const struct parilu_mat_t *M);

@@ -12,13 +12,12 @@
  * @param options Pointer to the struct parilu_opts_t which contains the
  * options.
  * @param comm MPI communicator.
- * @param bfr Pointer to the buffer struct used for work arrays.
  */
 struct parilu_t *parilu_setup(const uint32_t nnz, const uint64_t *const row,
                               const uint64_t *const col,
                               const double *const val,
                               const struct parilu_opts_t *const options,
-                              const MPI_Comm comm, buffer *const bfr) {
+                              const MPI_Comm comm) {
   const int verbose = options->verbose;
   parilu_log_init(verbose);
 
@@ -43,7 +42,7 @@ struct parilu_t *parilu_setup(const uint32_t nnz, const uint64_t *const row,
   // Setup CSR mat for ILU system.
   parilu_log(&c, PARILU_INFO, "parilu_setup: Setup the matrix.");
   struct parilu_mat_t *M =
-      parilu_mat_setup(nnz, row, col, val, &c, bfr, verbose - 1);
+      parilu_mat_setup(nnz, row, col, val, &c, verbose - 1);
 
   parilu_mat_dump("system.txt", M, &c);
 

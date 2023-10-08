@@ -1,8 +1,13 @@
-#include <parilu.h>
-#include <stdio.h>
+#include <mpi.h>
+#include <stdlib.h>
 
-static void read_system(uint32_t *nnz, uint64_t **row, uint64_t **col,
-                        double **val) {}
+#include <parilu.h>
+
+static void read_system(uint32_t *const nnz, uint64_t **const row,
+                        uint64_t **const col, double **const val,
+                        const char *const file) {
+  // Only rank 0 will read the file.
+}
 
 int main(int argc, char **argv) {
   MPI_Init(&argc, &argv);
