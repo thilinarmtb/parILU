@@ -1,7 +1,7 @@
 #if !defined(__LIBPARILU_H__)
 #define __LIBPARILU_H__
 
-#include <gslib.h>
+#include <mpi.h>
 #include <stdint.h>
 
 /**
@@ -61,10 +61,10 @@ PARILU_EXTERN struct parilu_t *parilu_setup(uint32_t nnz, const uint64_t *row,
                                             const uint64_t *col,
                                             const double *val,
                                             const struct parilu_opts_t *options,
-                                            MPI_Comm comm, buffer *bfr);
+                                            MPI_Comm comm);
 
 PARILU_EXTERN void parilu_solve(double *x, const struct parilu_t *ilu,
-                                const double *b, buffer *bfr);
+                                const double *b);
 
 PARILU_EXTERN void parilu_finalize(struct parilu_t **parilu);
 
