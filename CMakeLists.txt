@@ -32,14 +32,13 @@ target_compile_options(parilu PRIVATE
 target_compile_options(parilu PRIVATE
   $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unused-function -Wno-unused-parameter>)
 
-add_executable(parilu-driver bin/parilu-driver.c)
-set_target_properties(parilu-driver PROPERTIES VERSION ${PROJECT_VERSION})
-target_link_libraries(parilu-driver PRIVATE parilu)
-target_include_directories(parilu-driver PRIVATE include)
-target_compile_options(parilu-driver PRIVATE
-  $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+add_executable(parilu-example examples/parilu.c)
+set_target_properties(parilu-example PROPERTIES VERSION ${PROJECT_VERSION})
+target_link_libraries(parilu-example PRIVATE parilu)
+target_include_directories(parilu-example PRIVATE include)
+target_compile_options(parilu-example PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
   $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic>)
-target_compile_options(parilu-driver PRIVATE
+target_compile_options(parilu-example PRIVATE
   $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unused-function -Wno-unused-parameter>)
 
 if (ENABLE_DOCS)
@@ -76,15 +75,15 @@ if (ENABLE_ASAN)
   if (HAS_ADDRESS_SANITIZER)
     target_compile_options(parilu PRIVATE -fsanitize=address)
     target_link_options(parilu PRIVATE -fsanitize=address)
-    target_compile_options(parilu-driver PRIVATE -fsanitize=address)
-    target_link_options(parilu-driver PRIVATE -fsanitize=address)
+    target_compile_options(parilu-example PRIVATE -fsanitize=address)
+    target_link_options(parilu-example PRIVATE -fsanitize=address)
   else()
     message(FATAL_ERROR "AddressSanitizer is enabled but not supported.")
   endif()
 endif()
 
-install(TARGETS parilu parilu-driver EXPORT parilu-targets
-  RUNTIME DESTINATION bin LIBRARY DESTINATION lib
+install(TARGETS parilu parilu-example EXPORT parilu-targets
+  RUNTIME DESTINATION examples LIBRARY DESTINATION lib
   PUBLIC_HEADER DESTINATION include
 )
 
