@@ -9,11 +9,6 @@ enum parilu_input_t {
   PARILU_INPUT_HELP = 99
 };
 
-#define PARILU_VERBOSE 0
-#define PARILU_TYPE 1
-#define PARILU_TOL 1e-6
-#define PARILU_NNZ_PER_ROW 10
-
 static void parilu_print_help(const char *name) {
   printf("Usage: %s [OPTIONS]\n", name);
   printf("Options:\n");

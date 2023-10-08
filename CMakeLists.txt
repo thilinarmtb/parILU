@@ -4,6 +4,11 @@ project(parilu VERSION 0.0.1 DESCRIPTION "" LANGUAGES C)
 option(ENABLE_DOCS "Enable Documentation" OFF)
 option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 
+set(PARILU_VERBOSE 0)
+set(PARILU_TYPE 1)
+set(PARILU_TOL 1e-6)
+set(PARILU_NNZ_PER_ROW 10)
+
 # https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling
 # Use, i.e. don't skip the full RPATH for the build tree.
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
@@ -22,6 +27,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
 set(SOURCES src/parilu-parse-opts.c src/parilu-impl.c src/parilu-setup.c
   src/parilu-mat.c src/parilu-partition.c)
+configure_file(${CMAKE_SOURCE_DIR}/include/parilu-defs.h.in
+  ${CMAKE_SOURCE_DIR}/include/parilu-defs.h @ONLY)
+
 add_library(parilu SHARED ${SOURCES})
 set_target_properties(parilu PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION 1
   PUBLIC_HEADER include/parilu.h)
@@ -41,11 +49,11 @@ target_compile_options(parilu-example PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
 target_compile_options(parilu-example PRIVATE
   $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unused-function -Wno-unused-parameter>)
 
-if (ENABLE_DOCS)
-  add_subdirectory ("docs")
-endif()
-
 include(3rd_party/gslib.cmake)
+
+if (ENABLE_DOCS)
+  add_subdirectory("docs")
+endif()
 
 # Add clang-format as a custom target if available.
 find_program(CLANG_FORMAT NAMES clang-format)

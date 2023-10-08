@@ -3,13 +3,14 @@
 
 #define _POSIX_C_SOURCE 200809L
 
-#include <parilu.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-#define scalar double
+#include "parilu-defs.h"
+#include "parilu-types.h"
+#include "parilu.h"
 
 /**
  * @defgroup parilu_internal_api_macros Internal API macros
