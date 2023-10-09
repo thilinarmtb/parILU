@@ -34,6 +34,7 @@ void parilu_set_log_level(const int verbose) { verbose_ = verbose; }
  */
 void parilu_log(const struct comm *const c, const parilu_log_t type,
                 const char *const fmt, ...) {
+  comm_barrier(c);
   if (c->id > 0)
     return;
 

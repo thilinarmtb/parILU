@@ -13,7 +13,7 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
                  const uint64_t *const col, const double *const val,
                  const struct comm *const c, const int verbose) {
   // Check if the global matrix is empty and return if it is.
-  struct parilu_mat_t *M = tcalloc(struct parilu_mat_t, 1);
+  struct parilu_mat_t *M = parilu_calloc(struct parilu_mat_t, 1);
   {
     slong nnzg = nnz, wrk;
     comm_allreduce(c, gs_long, gs_add, &nnzg, 1, &wrk);
@@ -28,8 +28,8 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
 
   // Add the non-zeros into an array.
   struct array mat1;
-  array_init(struct mij_t, &mat1, nnz);
   {
+    array_init(struct mij_t, &mat1, nnz);
     slong minv = LONG_MAX;
     for (uint32_t i = 0; i < nnz; i++) {
       ulong r = row[i], c = col[i];
@@ -47,16 +47,17 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
     parilu_assert(minv == 1, "minv != 1");
   }
 
-  // Assemble the entries locally by summing up the entries with same row and
-  // column.
   buffer bfr;
   buffer_init(&bfr, 1024);
 
+  // Assemble the entries locally by summing up the entries with same row and
+  // column.
   struct array mat2;
-  array_init(struct mij_t, &mat2, mat1.n);
   {
     sarray_sort_2(struct mij_t, mat1.ptr, mat1.n, r, 1, c, 1, &bfr);
     struct mij_t *pm1 = (struct mij_t *)mat1.ptr;
+
+    array_init(struct mij_t, &mat2, mat1.n);
     uint i = 0, j;
     while (i < mat1.n) {
       j = i + 1;
@@ -66,43 +67,56 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
       array_cat(struct mij_t, &mat2, &pm1[i], 1);
       i = j;
     }
+    array_free(&mat1);
   }
-  array_free(&mat1);
 
   // Assemble the matrix globally now to finish the assembly.
-  uint rn = 0;
   {
     struct crystal cr;
     crystal_init(&cr, c);
     sarray_transfer(struct mij_t, &mat2, p, 1, &cr);
     crystal_free(&cr);
 
+    sarray_sort_2(struct mij_t, mat2.ptr, mat2.n, r, 1, c, 1, &bfr);
+    struct mij_t *pm2 = (struct mij_t *)mat2.ptr;
+
     array_init(struct mij_t, &mat1, mat2.n);
-    if (mat2.n > 0) {
-      sarray_sort_2(struct mij_t, mat2.ptr, mat2.n, r, 1, c, 1, &bfr);
-      struct mij_t *pm2 = (struct mij_t *)mat2.ptr;
-      uint i = 0, j;
-      while (i < mat2.n) {
-        j = i + 1;
-        while (j < mat2.n && (pm2[i].r == pm2[j].r) && (pm2[i].c == pm2[j].c))
-          pm2[i].v += pm2[j].v, j++;
-        array_cat(struct mij_t, &mat1, &pm2[i], 1);
-        i = j, rn++;
-      }
+    uint i = 0, j;
+    while (i < mat2.n) {
+      j = i + 1;
+      while (j < mat2.n && (pm2[i].r == pm2[j].r) && (pm2[i].c == pm2[j].c))
+        pm2[i].v += pm2[j].v, j++;
+      array_cat(struct mij_t, &mat1, &pm2[i], 1);
+      i = j;
+    }
+    array_free(&mat2);
+  }
+  parilu_log(c, PARILU_INFO, "parilu_mat_setup: nnz = %u.", mat1.n);
+
+  // Find the number of rows in each processor.
+  uint rn = 0;
+  {
+    const struct mij_t *const pm1 = (const struct mij_t *const)mat1.ptr;
+    uint i = 0;
+    while (i < mat1.n) {
+      uint j = i + 1;
+      while (j < mat1.n && pm1[i].r == pm1[j].r)
+        j++;
+      rn++, i = j;
     }
   }
-  array_free(&mat2);
 
   // Find the column ids in each processor.
   uint cn = 0, cmax = MAX_ARRAY_SIZE;
-  ulong *cols = tcalloc(ulong, cmax);
+  ulong *cols = parilu_calloc(ulong, cmax);
   {
     sarray_sort(struct mij_t, mat1.ptr, mat1.n, c, 1, &bfr);
     struct mij_t *pm1 = (struct mij_t *)mat1.ptr;
-    uint i = 0, j;
+
+    uint i = 0;
     while (i < mat1.n) {
       pm1[i].idx = cn;
-      j = i + 1;
+      uint j = i + 1;
       while (j < mat1.n && pm1[i].c == pm1[j].c)
         pm1[j].idx = cn, j++;
 
@@ -113,37 +127,45 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
       cols[cn] = pm1[i].c, cn++, i = j;
     }
   }
+  parilu_log(c, PARILU_INFO, "parilu_mat_setup: cn = %u.", cn);
 
   // Setup the CSR matrix.
   {
     sarray_sort_2(struct mij_t, mat1.ptr, mat1.n, r, 1, c, 1, &bfr);
-
     struct mij_t *pm1 = (struct mij_t *)mat1.ptr;
-    M->rn = rn;
-    M->off = tcalloc(uint, rn + 1);
-    M->row = tcalloc(ulong, rn);
-    M->idx = tcalloc(uint, mat1.n);
-    M->val = tcalloc(scalar, mat1.n);
 
-    uint i = 0, j, r = 0, nnz = 0;
+    M->rn = rn;
+    M->off = parilu_calloc(uint, rn + 1);
+    M->row = parilu_calloc(ulong, rn);
+    M->idx = parilu_calloc(uint, mat1.n);
+    M->val = parilu_calloc(scalar, mat1.n);
+
+    uint i = 0, r = 0, nnz = 0;
     while (i < mat1.n) {
-      M->idx[i] = pm1[i].idx, M->val[i] = pm1[i].v, nnz++;
-      j = i + 1;
+      uint j = i;
       while (j < mat1.n && pm1[i].r == pm1[j].r)
         M->idx[j] = pm1[j].idx, M->val[j] = pm1[j].v, j++, nnz++;
       M->row[r] = pm1[i].r, r++;
       M->off[r] = nnz;
+      i = j;
     }
+
+    parilu_log(c, PARILU_INFO, "parilu_mat_setup: r = %u.", r);
+    // Check invariant: r == rn
+    parilu_assert(r == rn, "r != rn.");
     // Check invariant: mat1.n == nnz
     parilu_assert(nnz == mat1.n, "nnz != mat1.n.");
+    array_free(&mat1);
 
     M->cn = cn;
-    M->col = tcalloc(ulong, cn);
+    M->col = parilu_calloc(ulong, cn);
     for (uint i = 0; i < cn; i++)
       M->col[i] = cols[i];
-  }
 
-  parilu_free(&cols);
+    parilu_free(&cols);
+  }
+  parilu_log(c, PARILU_INFO, "parilu_mat_setup: nnz = %u.", mat1.n);
+
   buffer_free(&bfr);
 
   return M;
@@ -157,20 +179,20 @@ parilu_mat_laplacian_setup(const struct parilu_mat_t *const M) {
   parilu_assert(M->col != NULL, "M->col == NULL.");
   parilu_assert(M->row != NULL, "M->row == NULL.");
 
-  struct parilu_mat_t *L = tcalloc(struct parilu_mat_t, 1);
+  struct parilu_mat_t *L = parilu_calloc(struct parilu_mat_t, 1);
   const uint rn = L->rn = M->rn;
-  L->off = tcalloc(uint, rn + 1);
+  L->off = parilu_calloc(uint, rn + 1);
   memcpy(L->off, M->off, sizeof(uint) * (rn + 1));
 
-  L->row = tcalloc(ulong, rn);
+  L->row = parilu_calloc(ulong, rn);
   memcpy(L->row, M->row, sizeof(ulong) * rn);
 
   const uint nnz = M->off[rn];
-  L->idx = tcalloc(uint, nnz);
+  L->idx = parilu_calloc(uint, nnz);
   memcpy(L->idx, M->idx, nnz);
 
   const uint cn = L->cn = M->cn;
-  L->col = tcalloc(ulong, cn);
+  L->col = parilu_calloc(ulong, cn);
   memcpy(L->col, M->col, sizeof(ulong) * cn);
 
   for (uint i = 0; i < rn; i++) {
@@ -217,15 +239,20 @@ PARILU_INTERN void parilu_mat_dump(const char *const file,
     crystal_init(&cr, c);
     sarray_transfer(struct data_t, &arr, p, 0, &cr);
     crystal_free(&cr);
+
+    buffer bfr;
+    buffer_init(&bfr, 1024);
+    sarray_sort_2(struct data_t, arr.ptr, arr.n, r, 1, c, 1, &bfr);
+    buffer_free(&bfr);
   }
 
-  // Write the data to file.
+  // Free data and exit if not rank 0.
   if (c->id) {
     array_free(&arr);
     return;
   }
 
-  // Write to file.
+  // Write the data to file at rank 0.
   {
     FILE *fp = fopen(file, "w");
     if (!fp)
@@ -233,7 +260,7 @@ PARILU_INTERN void parilu_mat_dump(const char *const file,
 
     const struct data_t *const ptr = (const struct data_t *)arr.ptr;
     for (uint i = 0; i < arr.n; i++)
-      fprintf(fp, "%llu %llu %g\n", ptr[i].r, ptr[i].c, ptr[i].v);
+      fprintf(fp, "%llu %llu %e\n", ptr[i].r, ptr[i].c, ptr[i].v);
 
     array_free(&arr);
     fclose(fp);
@@ -259,7 +286,7 @@ struct parilu_mat_op_t *parilu_mat_op_setup(const struct parilu_mat_t *M,
   const uint rn = M->rn, nnz = M->off[rn];
 
   // Initialize the buffer.
-  struct parilu_mat_op_t *op = tcalloc(struct parilu_mat_op_t, 1);
+  struct parilu_mat_op_t *op = parilu_calloc(struct parilu_mat_op_t, 1);
   {
     buffer_init(&op->bfr, MAX_ARRAY_SIZE);
     buffer_reserve(&op->bfr, (nnz + rn) * sizeof(slong));
@@ -277,7 +304,7 @@ struct parilu_mat_op_t *parilu_mat_op_setup(const struct parilu_mat_t *M,
 
   // Allocate work array set the pointer to the original matrix.
   {
-    op->wrk = tcalloc(scalar, nnz + rn);
+    op->wrk = parilu_calloc(scalar, nnz + rn);
     op->M = M;
   }
 

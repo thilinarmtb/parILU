@@ -37,7 +37,7 @@ struct parilu_t *parilu_setup(const uint32_t nnz, const uint64_t *const row,
 
   // Initialize ILU struct.
   parilu_log(&c, PARILU_INFO, "parilu_setup: Initialize ILU options.");
-  struct parilu_t *ilu = tcalloc(struct parilu_t, 1);
+  struct parilu_t *ilu = parilu_calloc(struct parilu_t, 1);
   {
     ilu->pivot = options->pivot;
     ilu->null_space = options->null_space;

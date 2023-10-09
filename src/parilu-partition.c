@@ -52,11 +52,11 @@ static void tqli(scalar *const evec, scalar *const eval, const uint n,
   // Allocate and initialize workspace. Initialize evec to identity matrix.
   scalar *d = NULL, *e = NULL;
   {
-    d = tcalloc(scalar, n);
+    d = parilu_calloc(scalar, n);
     for (uint i = 0; i < n; i++)
       d[i] = alpha[i];
 
-    e = tcalloc(scalar, n);
+    e = parilu_calloc(scalar, n);
     for (uint i = 0; i < n - 1; i++)
       e[i] = beta[i];
 
@@ -184,9 +184,9 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
   // Allocate memory for the Lanczos vectors.
   scalar *r = NULL, *p = NULL, *w = NULL;
   {
-    r = tcalloc(scalar, rn);
-    p = tcalloc(scalar, rn);
-    w = tcalloc(scalar, rn);
+    r = parilu_calloc(scalar, rn);
+    p = parilu_calloc(scalar, rn);
+    w = parilu_calloc(scalar, rn);
   }
 
   // Initialize the Lanczos vectors. f should be orthogonalized wrt to
@@ -259,11 +259,11 @@ static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
   scalar *alpha = NULL, *beta = NULL, *rr = NULL;
   scalar *evec = NULL, *eval = NULL;
   {
-    alpha = tcalloc(scalar, miter);
-    beta = tcalloc(scalar, miter);
-    rr = tcalloc(scalar, (miter + 1) * rn);
-    evec = tcalloc(scalar, miter * miter);
-    eval = tcalloc(scalar, miter);
+    alpha = parilu_calloc(scalar, miter);
+    beta = parilu_calloc(scalar, miter);
+    rr = parilu_calloc(scalar, (miter + 1) * rn);
+    evec = parilu_calloc(scalar, miter * miter);
+    eval = parilu_calloc(scalar, miter);
   }
 
   for (uint pass = 0; pass < mpass; pass++) {
