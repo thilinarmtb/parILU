@@ -43,11 +43,10 @@ static inline void normalize(scalar *const v, const uint n,
     v[i] *= normi;
 }
 
-static void tqli(scalar *const evec, scalar *const eval, const uint n,
-                 const scalar *const alpha, const scalar *const beta,
-                 const struct comm *const c, const int verbose) {
+static int tqli(scalar *const evec, scalar *const eval, const uint n,
+                const scalar *const alpha, const scalar *const beta) {
   if (n == 0)
-    return;
+    return 0;
 
   // Allocate and initialize workspace. Initialize evec to identity matrix.
   scalar *d = NULL, *e = NULL;
@@ -78,14 +77,9 @@ static void tqli(scalar *const evec, scalar *const eval, const uint n,
       }
 
       if (m != l) {
-        sint diverge = (iter++ == MAX_TQLI_ITER), wrk;
-        comm_allreduce(c, gs_int, gs_add, &diverge, 1, &wrk);
-        if (diverge) {
-          parilu_log(c, PARILU_WARN, "tqli: Too many iterations: %d.", iter);
-        }
         for (uint i = 0; i < n; i++)
           eval[i] = d[i];
-        return;
+        return iter++ == MAX_TQLI_ITER;
       }
 
       scalar g = (d[l + 1] - d[l]) / (2 * e[l]);
@@ -147,10 +141,8 @@ static void tqli(scalar *const evec, scalar *const eval, const uint n,
     for (uint i = 0; i < n; i++)
       e[k] += evec[k * n + i] * evec[k * n + i];
 
-    sint neg_or_zero = (e[k] <= TOL), wrk;
-    comm_allreduce(c, gs_int, gs_add, &neg_or_zero, 1, &wrk);
-    if (neg_or_zero)
-      parilu_log(c, PARILU_ERROR, "tqli: Negative or zero norm: %g.", e[k]);
+    if (e[k] <= TOL)
+      return 1;
 
     e[k] = sqrt(fabs(e[k]));
     scalar scale = 1.0 / e[k];
@@ -162,15 +154,16 @@ static void tqli(scalar *const evec, scalar *const eval, const uint n,
   for (uint i = 0; i < n; i++)
     eval[i] = d[i];
   parilu_free(&d);
+
+  return 0;
 }
 
 static uint lanczos_aux(scalar *const alpha, scalar *const beta,
                         scalar *const rr, const scalar *const f,
                         struct parilu_mat_op_t *op, const struct comm *const c,
-                        const uint miter, const scalar rtol,
-                        const int verbose) {
-  parilu_log(c, PARILU_INFO,
-             "parilu_partition: Lanczos, miter = %d, rtol = %e.", miter, rtol);
+                        const uint miter, const scalar rtol) {
+  parilu_log(c, PARILU_INFO, "lanczos_aux: miter = %d, rtol = %e.", miter,
+             rtol);
 
   const struct parilu_mat_t *M = op->M;
   const uint rn = M->rn;
@@ -185,17 +178,15 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
 
   // Initialize the Lanczos vectors. f should be orthogonalized wrt to
   // \underline{1} and normalized.
-  {
-    for (uint i = 0; i < rn; i++) {
-      r[i] = f[i];
-      rr[0 * rn + i] = r[i];
-    }
+  for (uint i = 0; i < rn; i++) {
+    r[i] = f[i];
+    rr[0 * rn + i] = r[i];
   }
 
   scalar rtr = 1, rtz1 = 1, rtz2, pap1 = 0, pap2;
   uint iter = 0;
   for (iter = 1; iter <= miter; iter++) {
-    parilu_log(c, PARILU_INFO, "parilu_partition: Lanczos, iter = %d.", iter);
+    parilu_log(c, PARILU_INFO, "lanczos_aux: iter = %d.", iter);
     rtz2 = rtz1, rtz1 = rtr;
     scalar beta_i = rtz1 / rtz2;
     if (iter == 1)
@@ -243,8 +234,7 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
 
 static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
                            const uint miter, const uint mpass,
-                           const scalar rtol, const struct comm *const c,
-                           const int verbose) {
+                           const scalar rtol, const struct comm *const c) {
   parilu_log(c, PARILU_INFO, "parilu_partition: Compute Fiedler vector.");
 
   const uint rn = M->rn;
@@ -262,11 +252,13 @@ static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
 
   for (uint pass = 0; pass < mpass; pass++) {
     parilu_log(c, PARILU_INFO, "parilu_partition: Lanczos, pass = %d.", pass);
-    uint iter =
-        lanczos_aux(alpha, beta, rr, fiedler, op, c, miter, rtol, verbose);
+    uint iter = lanczos_aux(alpha, beta, rr, fiedler, op, c, miter, rtol);
 
     // Find eigenvalues and eigenvectors of the tridiagonal matrix.
-    tqli(evec, eval, iter, alpha, beta, c, verbose);
+    sint err = tqli(evec, eval, iter, alpha, beta), wrk;
+    comm_allreduce(c, gs_int, gs_add, &err, 1, &wrk);
+    if (err)
+      parilu_log(c, PARILU_ERROR, "parilu_partition: tqli failed.");
 
     // Find min eigenvalue and associated eigenvector.
     scalar eval_min = fabs(eval[0]);
@@ -302,8 +294,7 @@ static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
 }
 
 static void parilu_fiedler(scalar *const fiedler, const struct parilu_mat_t *M,
-                           const struct comm *const c, buffer *bfr,
-                           const int verbose) {
+                           const struct comm *const c, buffer *bfr) {
   parilu_log(c, PARILU_INFO, "parilu_partition: Compute Fiedler vector.");
 
   const uint nr = M->rn;
@@ -344,7 +335,7 @@ static void parilu_fiedler(scalar *const fiedler, const struct parilu_mat_t *M,
     normalize(fiedler, nr, c);
   }
 
-  parilu_lanczos(fiedler, M, miter, mpass, rtol, c, verbose);
+  parilu_lanczos(fiedler, M, miter, mpass, rtol, c);
 
   normalize(fiedler, nr, c);
 }
