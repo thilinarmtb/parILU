@@ -49,21 +49,24 @@ struct parilu_t *parilu_setup(const uint32_t nnz, const uint64_t *const row,
     ilu->perm = NULL;
   }
 
+  buffer bfr;
+  buffer_init(&bfr, 1024);
+
   // Setup CSR mat for ILU system.
-  parilu_log(&c, PARILU_INFO, "parilu_setup: Setup the CSR matrix.");
-  struct parilu_mat_t *M = parilu_mat_setup(nnz, row, col, val, &c, verbose);
+  struct parilu_mat_t *M = parilu_mat_setup(nnz, row, col, val, &c, &bfr);
 
   // Create the Laplacian matrix of the system.
-  parilu_log(&c, PARILU_INFO, "parilu_setup: Setup the Laplacian matrix.");
+  parilu_log(&c, PARILU_INFO, "parilu_mat_laplacian_setup: ...");
   struct parilu_mat_t *L = parilu_mat_laplacian_setup(M);
 
   // Parition the matrix with parRSB.
-  parilu_log(&c, PARILU_INFO, "parilu_setup: Partition the matrix.");
+  parilu_partition(L, &c, &bfr);
 
   parilu_mat_free(&M), parilu_mat_free(&L);
 
   parilu_log(&c, PARILU_INFO, "parilu_setup: done.");
 
+  buffer_free(&bfr);
   comm_free(&c);
 
   return ilu;

@@ -101,10 +101,11 @@ PARILU_INTERN void parilu_assert_(int cond, const char *fmt, const char *file,
  * @brief Macro for asserting a condition. This macro calls parilu_assert_()
  * function.
  *
- * @param COND Condition to be asserted.
- * @param MSG Message to be printed if the condition is not met.
+ * @param condition Condition to be asserted.
+ * @param message Message to be printed if the condition is not met.
  */
-#define parilu_assert(COND, MSG) parilu_assert_(COND, MSG, __FILE__, __LINE__)
+#define parilu_assert(condition, message)                                      \
+  parilu_assert_(condition, message, __FILE__, __LINE__)
 
 /**
  * Structure for a sparse matrix.
@@ -121,7 +122,7 @@ struct parilu_mat_t {
 
 PARILU_INTERN struct parilu_mat_t *
 parilu_mat_setup(uint32_t nnz, const uint64_t *row, const uint64_t *col,
-                 const double *val, const struct comm *c, int verbose);
+                 const double *val, const struct comm *c, buffer *bfr);
 
 PARILU_INTERN struct parilu_mat_t *
 parilu_mat_laplacian_setup(const struct parilu_mat_t *M);
@@ -149,5 +150,8 @@ PARILU_INTERN void parilu_mat_op_apply(scalar *y, struct parilu_mat_op_t *op,
                                        const scalar *x);
 
 PARILU_INTERN void parilu_mat_op_free(struct parilu_mat_op_t **op);
+
+PARILU_INTERN void parilu_partition(const struct parilu_mat_t *const M,
+                                    const struct comm *const c, buffer *bfr);
 
 #endif // __LIBPARILU_IMPL_H__

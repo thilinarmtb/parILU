@@ -11,7 +11,7 @@ struct mij_t {
 struct parilu_mat_t *
 parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
                  const uint64_t *const col, const double *const val,
-                 const struct comm *const c, const int verbose) {
+                 const struct comm *const c, buffer *const bfr) {
   // Check if the global matrix is empty and return if it is.
   struct parilu_mat_t *M = parilu_calloc(struct parilu_mat_t, 1);
   {
@@ -47,14 +47,11 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
     parilu_assert(minv == 1, "minv != 1");
   }
 
-  buffer bfr;
-  buffer_init(&bfr, 1024);
-
   // Assemble the entries locally by summing up the entries with same row and
   // column.
   struct array mat2;
   {
-    sarray_sort_2(struct mij_t, mat1.ptr, mat1.n, r, 1, c, 1, &bfr);
+    sarray_sort_2(struct mij_t, mat1.ptr, mat1.n, r, 1, c, 1, bfr);
     struct mij_t *pm1 = (struct mij_t *)mat1.ptr;
 
     array_init(struct mij_t, &mat2, mat1.n);
@@ -77,7 +74,7 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
     sarray_transfer(struct mij_t, &mat2, p, 1, &cr);
     crystal_free(&cr);
 
-    sarray_sort_2(struct mij_t, mat2.ptr, mat2.n, r, 1, c, 1, &bfr);
+    sarray_sort_2(struct mij_t, mat2.ptr, mat2.n, r, 1, c, 1, bfr);
     struct mij_t *pm2 = (struct mij_t *)mat2.ptr;
 
     array_init(struct mij_t, &mat1, mat2.n);
@@ -110,7 +107,7 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
   uint cn = 0, cmax = MAX_ARRAY_SIZE;
   ulong *cols = parilu_calloc(ulong, cmax);
   {
-    sarray_sort(struct mij_t, mat1.ptr, mat1.n, c, 1, &bfr);
+    sarray_sort(struct mij_t, mat1.ptr, mat1.n, c, 1, bfr);
     struct mij_t *pm1 = (struct mij_t *)mat1.ptr;
 
     uint i = 0;
@@ -131,7 +128,7 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
 
   // Setup the CSR matrix.
   {
-    sarray_sort_2(struct mij_t, mat1.ptr, mat1.n, r, 1, c, 1, &bfr);
+    sarray_sort_2(struct mij_t, mat1.ptr, mat1.n, r, 1, c, 1, bfr);
     struct mij_t *pm1 = (struct mij_t *)mat1.ptr;
 
     M->rn = rn;
@@ -165,8 +162,6 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
     parilu_free(&cols);
   }
   parilu_log(c, PARILU_INFO, "parilu_mat_setup: nnz = %u.", mat1.n);
-
-  buffer_free(&bfr);
 
   return M;
 }
