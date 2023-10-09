@@ -18,12 +18,22 @@ struct parilu_t *parilu_setup(const uint32_t nnz, const uint64_t *const row,
                               const double *const val,
                               const struct parilu_opts_t *const options,
                               const MPI_Comm comm) {
-  const int verbose = options->verbose;
-  parilu_log_init(verbose);
-
   // Create a gslib comm out of MPI_Comm
   struct comm c;
   comm_init(&c, comm);
+
+  const int verbose = options->verbose;
+  parilu_set_log_level(verbose);
+
+  parilu_log(&c, PARILU_INFO, "parilu_setup: verbose = %d", options->verbose);
+  parilu_log(&c, PARILU_INFO, "parilu_setup: type = %d", options->type);
+  parilu_log(&c, PARILU_INFO, "parilu_setup: pivot = %d", options->pivot);
+  parilu_log(&c, PARILU_INFO, "parilu_setup: tol = %e", options->tol);
+  parilu_log(&c, PARILU_INFO, "parilu_setup: nnz_per_row = %d",
+             options->nnz_per_row);
+  parilu_log(&c, PARILU_INFO, "parilu_setup: null_space = %d",
+             options->null_space);
+  parilu_log(&c, PARILU_INFO, "parilu_setup: file = %s", options->file);
 
   // Initialize ILU struct.
   parilu_log(&c, PARILU_INFO, "parilu_setup: Initialize ILU options.");

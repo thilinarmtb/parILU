@@ -88,7 +88,7 @@ PARILU_INTERN void parilu_free_(void **ptr);
 
 typedef enum { PARILU_INFO, PARILU_WARN, PARILU_ERROR } parilu_log_t;
 
-PARILU_INTERN void parilu_log_init(int verbose);
+PARILU_INTERN void parilu_set_log_level(int verbose);
 
 PARILU_INTERN void parilu_log(const struct comm *c, parilu_log_t type,
                               const char *fmt, ...);
