@@ -19,7 +19,7 @@ static int verbose_ = 0;
  *
  * @param verbose Verbosity level.
  */
-void parilu_log_init(const int verbose) { verbose_ = verbose; }
+void parilu_set_log_level(const int verbose) { verbose_ = verbose; }
 
 /**
  * @ingroup parilu_internal_api_functions
@@ -34,33 +34,33 @@ void parilu_log_init(const int verbose) { verbose_ = verbose; }
  */
 void parilu_log(const struct comm *const c, const parilu_log_t type,
                 const char *const fmt, ...) {
+  if (c->id > 0)
+    return;
+
   int print = 0;
   if ((verbose_ > 0) && (type == PARILU_ERROR)) {
-    printf("[ERROR]: ");
+    fprintf(stderr, "[ERROR]: ");
     print = 1;
   }
 
   if ((verbose_ > 1) && (type == PARILU_WARN)) {
-    printf("[WARN]: ");
+    fprintf(stderr, "[WARN]: ");
     print = 1;
   }
 
   if ((verbose_ > 2) && (type == PARILU_INFO)) {
-    printf("[INFO]: ");
+    fprintf(stderr, "[INFO]: ");
     print = 1;
   }
 
   if (print) {
     va_list args;
     va_start(args, fmt);
-    vprintf(fmt, args);
-    printf("\n");
-    fflush(stdout);
+    vfprintf(stderr, fmt, args);
+    fprintf(stderr, "\n");
+    fflush(stderr);
     va_end(args);
   }
-
-  if (type == PARILU_ERROR)
-    MPI_Abort(c->c, EXIT_FAILURE);
 }
 
 /**

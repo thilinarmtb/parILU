@@ -51,6 +51,7 @@ struct parilu_opts_t {
       tol; /**< 1st dropping rule: An entry a_ij is dropped abs(a_ij) < tol. */
   unsigned int nnz_per_row; /**< 2nd dropping rule: Entries are dropped so that
                                total nnz per row/col < p. */
+  char *file;               /**< File to read the matrix from. */
 };
 
 PARILU_EXTERN struct parilu_opts_t *parilu_parse_opts(int *argc, char **argv[]);
@@ -65,6 +66,8 @@ PARILU_EXTERN struct parilu_t *parilu_setup(uint32_t nnz, const uint64_t *row,
 
 PARILU_EXTERN void parilu_solve(double *x, const struct parilu_t *ilu,
                                 const double *b);
+
+PARILU_EXTERN void parilu_finalize_opts(struct parilu_opts_t **opts);
 
 PARILU_EXTERN void parilu_finalize(struct parilu_t **parilu);
 

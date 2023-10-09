@@ -6,6 +6,7 @@ option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 
 set(PARILU_VERBOSE 0)
 set(PARILU_TYPE 1)
+set(PARILU_PIVOT 0)
 set(PARILU_TOL 1e-6)
 set(PARILU_NNZ_PER_ROW 10)
 
