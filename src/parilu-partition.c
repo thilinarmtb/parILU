@@ -186,7 +186,6 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
   scalar rtr = 1, rtz1 = 1, rtz2, pap1 = 0, pap2;
   uint iter = 0;
   for (iter = 1; iter <= miter; iter++) {
-    parilu_log(c, PARILU_INFO, "lanczos_aux: iter = %d.", iter);
     rtz2 = rtz1, rtz1 = rtr;
     scalar beta_i = rtz1 / rtz2;
     if (iter == 1)
@@ -212,12 +211,14 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
       rr[iter * rn + i] = r[i] * rni;
 
     if (iter == 1) {
-      alpha[0] = pap1;
+      alpha[0] = pap1 / rtz1;
     } else {
       alpha[iter - 1] = (pap1 + beta_i * beta_i * pap2) / rtz1;
       beta[iter - 2] = -beta_i * pap2 / sqrt(rtz2 * rtz1);
     }
 
+    parilu_log(c, PARILU_INFO, "lanczos_aux: iter = %d rnorm = %e", iter,
+               rnorm);
     if (rnorm < rtol)
       break;
   }
@@ -263,7 +264,7 @@ static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
     // Find min eigenvalue and associated eigenvector.
     scalar eval_min = fabs(eval[0]);
     uint eval_min_idx = 0;
-    for (uint i = 1; i < rn; i++) {
+    for (uint i = 1; i < iter; i++) {
       if (fabs(eval[i]) < eval_min) {
         eval_min = eval[i];
         eval_min_idx = i;
@@ -276,7 +277,11 @@ static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
       for (uint j = 0; j < iter; j++)
         fiedler[i] += evec[j + eval_min_idx * iter] * rr[j * rn + i];
     }
+
     orthogonalize(fiedler, rn, c);
+    scalar rni = 1.0 / sqrt(dot(fiedler, fiedler, rn, c));
+    for (uint i = 0; i < rn; i++)
+      fiedler[i] *= rni;
 
     if (iter < miter)
       break;
@@ -343,6 +348,12 @@ static void parilu_fiedler(scalar *const fiedler, const struct parilu_mat_t *M,
 void parilu_partition(const struct parilu_mat_t *const M,
                       const struct comm *const c, buffer *const bfr) {
   parilu_log(c, PARILU_INFO, "parilu_partition: Partition matrix.");
+
+  scalar *fiedler = parilu_calloc(scalar, M->rn);
+  parilu_fiedler(fiedler, M, c, bfr);
+  parilu_free(&fiedler);
+
+  parilu_log(c, PARILU_INFO, "parilu_partition: done.");
 }
 
 #undef MAX_LANCZOS_ITER

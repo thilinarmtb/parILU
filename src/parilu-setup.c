@@ -34,7 +34,7 @@ parilu *parilu_setup(const uint32_t nnz, const uint64_t *const row,
 
   // Initialize ILU struct.
   parilu_log(&c, PARILU_INFO, "parilu_setup: Initialize ILU options.");
-  struct parilu_t *ilu = parilu_calloc(struct parilu_t, 1);
+  parilu *ilu = parilu_calloc(parilu, 1);
   {
     ilu->pivot = options->pivot;
     ilu->null_space = options->null_space;
@@ -56,15 +56,14 @@ parilu *parilu_setup(const uint32_t nnz, const uint64_t *const row,
   // Create the Laplacian matrix of the system.
   parilu_log(&c, PARILU_INFO, "parilu_mat_laplacian_setup: ...");
   struct parilu_mat_t *L = parilu_mat_laplacian_setup(M);
-  parilu_mat_free(&L);
+  parilu_mat_dump("laplacian.txt", L, &c);
 
   // Parition the matrix with parRSB.
-  // parilu_partition(L, &c, &bfr);
-
-  parilu_log(&c, PARILU_INFO, "parilu_setup: done.");
-
+  parilu_partition(L, &c, &bfr);
+  parilu_mat_free(&L);
   parilu_mat_free(&M);
 
+  parilu_log(&c, PARILU_INFO, "parilu_setup: done.");
   buffer_free(&bfr);
   comm_free(&c);
 

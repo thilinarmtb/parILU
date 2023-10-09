@@ -79,7 +79,7 @@ static void read_matrix(uint32_t *const nnz, uint64_t **const row,
       m.row = row_[i];
       m.col = col_[i];
       m.val = val_[i];
-      m.p = (i - N) / (n - 1);
+      m.p = (i - N) / (n - nrem);
       array_cat(struct entry_t, &mat, &m, 1);
     }
   }
@@ -134,13 +134,11 @@ int main(int argc, char **argv) {
   double *val = NULL;
   read_matrix(&nnz, &row, &col, &val, file, MPI_COMM_WORLD, verbose);
 
-  struct parilu_t *ilu = parilu_setup(nnz, row, col, val, opts, MPI_COMM_WORLD);
-
-  free(row), free(col), free(val);
-  parilu_finalize_opts(&opts);
+  parilu *ilu = parilu_setup(nnz, row, col, val, opts, MPI_COMM_WORLD);
 
   parilu_finalize(&ilu);
-
+  free(row), free(col), free(val);
+  parilu_finalize_opts(&opts);
   MPI_Finalize();
 
   return 0;
