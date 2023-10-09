@@ -3,9 +3,10 @@
 
 #include <parilu.h>
 
-static void read_system(uint32_t *const nnz, uint64_t **const row,
+static void read_matrix(uint32_t *const nnz, uint64_t **const row,
                         uint64_t **const col, double **const val,
-                        const char *const file, const MPI_Comm comm) {
+                        const char *const file, const MPI_Comm comm,
+                        const unsigned verbose) {
   struct comm c;
   comm_init(&c, comm);
 
@@ -41,8 +42,8 @@ static void read_system(uint32_t *const nnz, uint64_t **const row,
     fclose(fp);
   }
 
-  if (c.id == 0) {
-    printf("read_system: Read %" PRIu32 " nonzeros from %" PRIu32 " entries.\n",
+  if (c.id == 0 && verbose) {
+    printf("read_matrix: Read %" PRIu32 " nonzeros from %" PRIu32 " entries.\n",
            count, *nnz);
     fflush(stdout);
   }
@@ -119,7 +120,8 @@ int main(int argc, char **argv) {
   uint32_t nnz;
   uint64_t *row = NULL, *col = NULL;
   double *val = NULL;
-  read_system(&nnz, &row, &col, &val, opts->file, MPI_COMM_WORLD);
+  read_matrix(&nnz, &row, &col, &val, opts->file, MPI_COMM_WORLD,
+              opts->verbose);
 
   struct parilu_t *ilu = parilu_setup(nnz, row, col, val, opts, MPI_COMM_WORLD);
 

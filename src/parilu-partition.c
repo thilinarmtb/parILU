@@ -142,32 +142,26 @@ static void tqli(scalar *const evec, scalar *const eval, const uint n,
   }
 
   // Normalize eigenvectors and copy eigenvalues.
-  {
-    for (uint k = 0; k < n; k++) {
-      e[k] = 0;
-      for (uint i = 0; i < n; i++)
-        e[k] += evec[k * n + i] * evec[k * n + i];
-
-      sint neg_or_zero = (e[k] <= TOL), wrk;
-      comm_allreduce(c, gs_int, gs_add, &neg_or_zero, 1, &wrk);
-      if (neg_or_zero)
-        parilu_log(c, PARILU_ERROR, "tqli: Negative or zero norm: %g.", e[k]);
-
-      e[k] = sqrt(fabs(e[k]));
-      scalar scale = 1.0 / e[k];
-      for (uint i = 0; i < n; i++)
-        evec[i * n + k] *= scale;
-    }
-
+  for (uint k = 0; k < n; k++) {
+    e[k] = 0;
     for (uint i = 0; i < n; i++)
-      eval[i] = d[i];
-  }
+      e[k] += evec[k * n + i] * evec[k * n + i];
 
-  // Free workspace.
-  {
-    parilu_free(&d);
-    parilu_free(&e);
+    sint neg_or_zero = (e[k] <= TOL), wrk;
+    comm_allreduce(c, gs_int, gs_add, &neg_or_zero, 1, &wrk);
+    if (neg_or_zero)
+      parilu_log(c, PARILU_ERROR, "tqli: Negative or zero norm: %g.", e[k]);
+
+    e[k] = sqrt(fabs(e[k]));
+    scalar scale = 1.0 / e[k];
+    for (uint i = 0; i < n; i++)
+      evec[i * n + k] *= scale;
   }
+  parilu_free(&e);
+
+  for (uint i = 0; i < n; i++)
+    eval[i] = d[i];
+  parilu_free(&d);
 }
 
 static uint lanczos_aux(scalar *const alpha, scalar *const beta,
@@ -277,24 +271,20 @@ static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
     // Find min eigenvalue and associated eigenvector.
     scalar eval_min = fabs(eval[0]);
     uint eval_min_idx = 0;
-    {
-      for (uint i = 1; i < rn; i++) {
-        if (fabs(eval[i]) < eval_min) {
-          eval_min = eval[i];
-          eval_min_idx = i;
-        }
+    for (uint i = 1; i < rn; i++) {
+      if (fabs(eval[i]) < eval_min) {
+        eval_min = eval[i];
+        eval_min_idx = i;
       }
     }
 
     // Project eigenvector onto the original space.
-    {
-      for (uint i = 0; i < rn; i++) {
-        fiedler[i] = 0;
-        for (uint j = 0; j < iter; j++)
-          fiedler[i] += evec[j + eval_min_idx * iter] * rr[j * rn + i];
-      }
-      orthogonalize(fiedler, rn, c);
+    for (uint i = 0; i < rn; i++) {
+      fiedler[i] = 0;
+      for (uint j = 0; j < iter; j++)
+        fiedler[i] += evec[j + eval_min_idx * iter] * rr[j * rn + i];
     }
+    orthogonalize(fiedler, rn, c);
 
     if (iter < miter)
       break;
@@ -359,10 +349,9 @@ static void parilu_fiedler(scalar *const fiedler, const struct parilu_mat_t *M,
   normalize(fiedler, nr, c);
 }
 
-struct parilu_mat_t *parilu_partition(const struct parilu_mat_t *const M,
-                                      const struct comm *const c, buffer *bfr,
-                                      const int verbose) {
-  return NULL;
+void parilu_partition(const struct parilu_mat_t *const M,
+                      const struct comm *const c, buffer *const bfr) {
+  parilu_log(c, PARILU_INFO, "parilu_partition: Partition matrix.");
 }
 
 #undef MAX_LANCZOS_ITER
