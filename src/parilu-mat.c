@@ -180,6 +180,7 @@ parilu_mat_laplacian_setup(const struct parilu_mat_t *const M) {
   parilu_assert(M->row != NULL, "M->row == NULL.");
 
   struct parilu_mat_t *L = parilu_calloc(struct parilu_mat_t, 1);
+
   const uint rn = L->rn = M->rn;
   L->off = parilu_calloc(uint, rn + 1);
   memcpy(L->off, M->off, sizeof(uint) * (rn + 1));
@@ -189,21 +190,22 @@ parilu_mat_laplacian_setup(const struct parilu_mat_t *const M) {
 
   const uint nnz = M->off[rn];
   L->idx = parilu_calloc(uint, nnz);
-  memcpy(L->idx, M->idx, nnz);
+  memcpy(L->idx, M->idx, sizeof(ulong) * nnz);
 
   const uint cn = L->cn = M->cn;
   L->col = parilu_calloc(ulong, cn);
   memcpy(L->col, M->col, sizeof(ulong) * cn);
 
+  L->val = parilu_calloc(scalar, nnz);
   for (uint i = 0; i < rn; i++) {
     sint didx = -1;
-    for (uint j = M->idx[i], je = M->idx[i + 1]; j < je; j++) {
+    for (uint j = M->off[i], je = M->off[i + 1]; j < je; j++) {
       if (M->row[i] == M->col[M->idx[j]])
         didx = j;
       L->val[j] = -1;
     }
-    parilu_assert(didx != -1, "No diagonal entry found!");
-    L->val[didx] = M->idx[i + 1] - M->idx[i] - 1;
+    parilu_assert(didx >= 0, "No diagonal entry found!");
+    L->val[didx] = M->off[i + 1] - M->off[i] - 1;
   }
 
   return L;
