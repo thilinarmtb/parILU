@@ -12,13 +12,12 @@ struct parilu_mat_t *
 parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
                  const uint64_t *const col, const double *const val,
                  const struct comm *const c, const int verbose) {
-  parilu_log(c, PARILU_INFO, "parilu_mat_setup: nnz = %u.", nnz);
-
   // Check if the global matrix is empty and return if it is.
   struct parilu_mat_t *M = tcalloc(struct parilu_mat_t, 1);
   {
     slong nnzg = nnz, wrk;
     comm_allreduce(c, gs_long, gs_add, &nnzg, 1, &wrk);
+    parilu_log(c, PARILU_INFO, "parilu_mat_setup: nnzg = %ld.", nnzg);
     if (nnzg == 0) {
       M->rn = M->cn = 0;
       M->off = M->idx = NULL;
@@ -32,7 +31,7 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
   array_init(struct mij_t, &mat1, nnz);
   {
     slong minv = LONG_MAX;
-    for (uint i = 0; i < nnz; i++) {
+    for (uint32_t i = 0; i < nnz; i++) {
       ulong r = row[i], c = col[i];
       if (r == 0 || c == 0)
         continue;
@@ -44,7 +43,8 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
 
     slong wrk;
     comm_allreduce(c, gs_long, gs_min, &minv, 1, &wrk);
-    parilu_assert(minv == 1, "minv != 1.");
+    parilu_log(c, PARILU_INFO, "parilu_mat_setup: minv = %ld.", minv);
+    parilu_assert(minv == 1, "minv != 1");
   }
 
   // Assemble the entries locally by summing up the entries with same row and
