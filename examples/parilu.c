@@ -64,7 +64,7 @@ static void read_system(uint32_t *const nnz, uint64_t **const row,
     // Size of the expected data on rank 0.
     const uint nrem = *nnz % c.np;
     const uint32_t n = (*nnz / c.np) + (nrem > 0);
-    // Check invariant: n > 1 since *nnz > 0.
+    // Check invariant: n > 0 since *nnz > 0.
     assert(n >= 1);
 
     struct entry_t m;
@@ -124,8 +124,10 @@ int main(int argc, char **argv) {
   struct parilu_t *ilu = parilu_setup(nnz, row, col, val, opts, MPI_COMM_WORLD);
 
   free(row), free(col), free(val);
-  parilu_finalize(&ilu);
   parilu_finalize_opts(&opts);
+
+  parilu_finalize(&ilu);
+
   MPI_Finalize();
 
   return 0;
