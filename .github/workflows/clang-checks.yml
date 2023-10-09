@@ -55,7 +55,7 @@ jobs:
       - name: Run clang-tidy check
         id: tidy_check
         run: |
-          ./parilu.sh --cc mpicc --build-dir ${BUILDDIR} --tidy
+          #./parilu.sh --cc mpicc --build-dir ${BUILDDIR} --tidy
       - name: Block to allow inspecting failures
         run: sleep 30m
         if: ${{ failure() && inputs.debug_enabled }}

@@ -186,7 +186,6 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
   scalar rtr = 1, rtz1 = 1, rtz2, pap1 = 0, pap2;
   uint iter = 0;
   for (iter = 1; iter <= miter; iter++) {
-    parilu_log(c, PARILU_INFO, "lanczos_aux: iter = %d.", iter);
     rtz2 = rtz1, rtz1 = rtr;
     scalar beta_i = rtz1 / rtz2;
     if (iter == 1)
@@ -218,6 +217,8 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
       beta[iter - 2] = -beta_i * pap2 / sqrt(rtz2 * rtz1);
     }
 
+    parilu_log(c, PARILU_INFO, "lanczos_aux: iter = %d rnorm = %e", iter,
+               rnorm);
     if (rnorm < rtol)
       break;
   }
@@ -343,6 +344,10 @@ static void parilu_fiedler(scalar *const fiedler, const struct parilu_mat_t *M,
 void parilu_partition(const struct parilu_mat_t *const M,
                       const struct comm *const c, buffer *const bfr) {
   parilu_log(c, PARILU_INFO, "parilu_partition: Partition matrix.");
+
+  scalar *fiedler = parilu_calloc(scalar, M->rn);
+  parilu_fiedler(fiedler, M, c, bfr);
+  parilu_free(&fiedler);
 }
 
 #undef MAX_LANCZOS_ITER
