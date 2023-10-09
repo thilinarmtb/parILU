@@ -50,7 +50,7 @@ struct parilu_t *parilu_setup(const uint32_t nnz, const uint64_t *const row,
   }
 
   // Setup CSR mat for ILU system.
-  parilu_log(&c, PARILU_INFO, "parilu_setup: Setup the matrix.");
+  parilu_log(&c, PARILU_INFO, "parilu_setup: Setup the CSR matrix.");
   struct parilu_mat_t *M =
       parilu_mat_setup(nnz, row, col, val, &c, verbose - 1);
 
