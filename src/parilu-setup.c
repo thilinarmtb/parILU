@@ -18,7 +18,7 @@ struct parilu_t *parilu_setup(const uint32_t nnz, const uint64_t *const row,
                               const double *const val,
                               const struct parilu_opts_t *const options,
                               const MPI_Comm comm) {
-  // Create a gslib comm out of MPI_Comm
+  // Create a gslib comm out of MPI_Comm.
   struct comm c;
   comm_init(&c, comm);
 

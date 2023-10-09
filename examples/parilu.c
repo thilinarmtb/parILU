@@ -13,6 +13,7 @@ static void read_system(uint32_t *const nnz, uint64_t **const row,
   // Ideally, we would like to have a parallel I/O but that is too complicated
   // for an example.
   uint64_t *row_ = NULL, *col_ = NULL;
+  uint32_t count = 0;
   double *val_ = NULL;
   if (c.id == 0) {
     FILE *fp = fopen(file, "r");
@@ -22,18 +23,32 @@ static void read_system(uint32_t *const nnz, uint64_t **const row,
     }
 
     fscanf(fp, "%" SCNu32 "\n", nnz);
-    if (*nnz == 0)
-      return;
 
     row_ = calloc(*nnz, sizeof(**row));
     col_ = calloc(*nnz, sizeof(**col));
     val_ = calloc(*nnz, sizeof(**val));
 
-    for (uint32_t i = 0; i < *nnz; ++i)
-      fscanf(fp, "%" SCNu64 " %" SCNu64 " %lf\n", &row_[i], &col_[i], &val_[i]);
+    int64_t r, c;
+    double v;
+    for (uint32_t i = 0; i < *nnz; ++i) {
+      fscanf(fp, "%" SCNd64 " %" SCNd64 " %lf\n", &r, &c, &v);
+      if (r < 0 || c < 0)
+        continue;
+      row_[count] = r, col_[count] = c, val_[count] = v;
+      count++;
+    }
 
     fclose(fp);
   }
+
+  if (c.id == 0) {
+    printf("read_system: Read %" PRIu32 " nonzeros from %" PRIu32 " entries.\n",
+           count, *nnz);
+    fflush(stdout);
+  }
+
+  if (*nnz == 0)
+    return;
 
   struct entry_t {
     uint64_t row;
@@ -100,8 +115,17 @@ int main(int argc, char **argv) {
   MPI_Init(&argc, &argv);
 
   struct parilu_opts_t *opts = parilu_parse_opts(&argc, &argv);
-  parilu_finalize_opts(&opts);
 
+  uint32_t nnz;
+  uint64_t *row = NULL, *col = NULL;
+  double *val = NULL;
+  read_system(&nnz, &row, &col, &val, opts->file, MPI_COMM_WORLD);
+
+  struct parilu_t *ilu = parilu_setup(nnz, row, col, val, opts, MPI_COMM_WORLD);
+
+  free(row), free(col), free(val);
+  parilu_finalize(&ilu);
+  parilu_finalize_opts(&opts);
   MPI_Finalize();
 
   return 0;
