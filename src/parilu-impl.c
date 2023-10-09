@@ -62,6 +62,9 @@ void parilu_log(const struct comm *const c, const parilu_log_t type,
     fflush(stderr);
     va_end(args);
   }
+
+  if (type == PARILU_ERROR)
+    MPI_Abort(c->c, EXIT_FAILURE);
 }
 
 /**
