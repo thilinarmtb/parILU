@@ -39,6 +39,10 @@
  * @brief User API functions defined in `parilu.h`.
  */
 
+PARILU_EXTERN void parilu_read_matrix(uint32_t *nnz, uint64_t **row,
+                                      uint64_t **col, double **val,
+                                      const char *file, MPI_Comm comm,
+                                      unsigned verbose);
 /**
  * Store the options for parILU. This is a typedef for struct ::parilu_opts_t.
  */
