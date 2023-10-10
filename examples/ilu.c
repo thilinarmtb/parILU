@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
   if (argc > 2)
     verbose = atoi(argv[2]);
 
-  parilu_opts *opts = parilu_default_opts();
+  parilu_options *opts = parilu_default_opts();
   parilu_set_verbose(opts, verbose);
   parilu_set_matrix(opts, file);
 
@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
   double *val = NULL;
   parilu_read_matrix(&nnz, &row, &col, &val, file, MPI_COMM_WORLD, verbose);
 
-  parilu *ilu = parilu_setup(nnz, row, col, val, opts, MPI_COMM_WORLD);
+  parilu_handle *ilu = parilu_setup(nnz, row, col, val, opts, MPI_COMM_WORLD);
 
   free(row), free(col), free(val);
 

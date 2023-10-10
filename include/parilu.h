@@ -44,49 +44,52 @@ PARILU_EXTERN void parilu_read_matrix(uint32_t *nnz, uint64_t **row,
                                       const char *file, MPI_Comm comm,
                                       unsigned verbose);
 /**
- * Store the options for parILU. This is a typedef for struct ::parilu_opts_t.
+ * Store the options for parILU. This is a typedef for struct
+ * ::parilu_options_t.
  */
-typedef struct parilu_opts_t parilu_opts;
-PARILU_EXTERN parilu_opts *parilu_default_opts(void);
+typedef struct parilu_options_t parilu_options;
+PARILU_EXTERN parilu_options *parilu_default_opts(void);
 
-PARILU_EXTERN int parilu_set_verbose(parilu_opts *opts, unsigned verbose);
-PARILU_EXTERN int parilu_get_verbose(const parilu_opts *opts,
+PARILU_EXTERN int parilu_set_verbose(parilu_options *opts, unsigned verbose);
+PARILU_EXTERN int parilu_get_verbose(const parilu_options *opts,
                                      unsigned *verbose);
 
-PARILU_EXTERN int parilu_set_type(parilu_opts *opts, unsigned type);
-PARILU_EXTERN int parilu_get_type(const parilu_opts *opts, unsigned *type);
+PARILU_EXTERN int parilu_set_type(parilu_options *opts, unsigned type);
+PARILU_EXTERN int parilu_get_type(const parilu_options *opts, unsigned *type);
 
-PARILU_EXTERN int parilu_set_pivot(parilu_opts *opts, unsigned pivot);
-PARILU_EXTERN int parilu_get_pivot(const parilu_opts *opts, unsigned *pivot);
+PARILU_EXTERN int parilu_set_pivot(parilu_options *opts, unsigned pivot);
+PARILU_EXTERN int parilu_get_pivot(const parilu_options *opts, unsigned *pivot);
 
-PARILU_EXTERN int parilu_set_null_space(parilu_opts *opts, unsigned null_space);
-PARILU_EXTERN int parilu_get_null_space(const parilu_opts *opts,
+PARILU_EXTERN int parilu_set_null_space(parilu_options *opts,
+                                        unsigned null_space);
+PARILU_EXTERN int parilu_get_null_space(const parilu_options *opts,
                                         unsigned *null_space);
 
-PARILU_EXTERN int parilu_set_tol(parilu_opts *opts, double tol);
-PARILU_EXTERN int parilu_get_tol(const parilu_opts *opts, double *tol);
+PARILU_EXTERN int parilu_set_tol(parilu_options *opts, double tol);
+PARILU_EXTERN int parilu_get_tol(const parilu_options *opts, double *tol);
 
-PARILU_EXTERN int parilu_set_nnz_per_row(parilu_opts *opts,
+PARILU_EXTERN int parilu_set_nnz_per_row(parilu_options *opts,
                                          unsigned nnz_per_row);
-PARILU_EXTERN int parilu_get_nnz_per_row(const parilu_opts *opts,
+PARILU_EXTERN int parilu_get_nnz_per_row(const parilu_options *opts,
                                          unsigned *nnz_per_row);
 
-PARILU_EXTERN int parilu_set_matrix(parilu_opts *opts, const char *file);
-PARILU_EXTERN int parilu_get_matrix(const parilu_opts *opts, char **file);
+PARILU_EXTERN int parilu_set_matrix(parilu_options *opts, const char *file);
+PARILU_EXTERN int parilu_get_matrix(const parilu_options *opts, char **file);
 
-PARILU_EXTERN void parilu_finalize_opts(parilu_opts **opts);
+PARILU_EXTERN void parilu_finalize_opts(parilu_options **opts);
 
 /**
  * parILU handle returned by parilu_setup(). This is a typedef of struct
- * ::parilu_t.
+ * ::parilu_handle_t.
  */
-typedef struct parilu_t parilu;
-PARILU_EXTERN parilu *parilu_setup(uint32_t nnz, const uint64_t *row,
-                                   const uint64_t *col, const double *val,
-                                   const parilu_opts *options, MPI_Comm comm);
+typedef struct parilu_handle_t parilu_handle;
+PARILU_EXTERN parilu_handle *
+parilu_setup(uint32_t nnz, const uint64_t *row, const uint64_t *col,
+             const double *val, const parilu_options *options, MPI_Comm comm);
 
-PARILU_EXTERN void parilu_solve(double *x, const parilu *ilu, const double *b);
+PARILU_EXTERN void parilu_solve(double *x, const parilu_handle *ilu,
+                                const double *b);
 
-PARILU_EXTERN void parilu_finalize(parilu **parilu);
+PARILU_EXTERN void parilu_finalize(parilu_handle **parilu);
 
 #endif // __LIBPARILU_H__

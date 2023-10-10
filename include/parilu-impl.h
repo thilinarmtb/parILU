@@ -42,7 +42,7 @@
 /**
  * Struct to hold the options for the ILU preconditioner.
  */
-struct parilu_opts_t {
+struct parilu_options_t {
   unsigned verbose;    /**< Verbosity level: 0, 1, 2, ... */
   unsigned type;       /**< ILU type: ILU(0), ILUC, etc. */
   unsigned pivot;      /**< Use pivoting or not. */
@@ -57,7 +57,7 @@ struct parilu_opts_t {
 /**
  * parILU handle returned by parilu_setup().
  */
-struct parilu_t {
+struct parilu_handle_t {
   uint un;             /**< Number of local unknowns. */
   struct gs_data *u2r; /**< User vector to global vector mapping. */
 

@@ -20,10 +20,10 @@ Functions
 
 Structures
 ^^^^^^^^^^
-.. doxygenstruct:: parilu_t
+.. doxygenstruct:: parilu_handle_t
    :project: parilu
    :members:
 
-.. doxygenstruct:: parilu_opts_t
+.. doxygenstruct:: parilu_options_t
    :project: parilu
    :members:
