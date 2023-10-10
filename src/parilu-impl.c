@@ -89,9 +89,9 @@ void parilu_assert_(const int cond, const char *const msg,
 /**
  * @ingroup parilu_user_api_functions
  *
- * @brief Finalize parilu. Frees the memory allocated for the struct parilu_t
- * returned by parilu_setup() and sets the pointer to NULL.
+ * @brief Finalize parILU. Frees the memory allocated for the handle returned
+ * by parilu_setup() and sets the pointer to NULL.
  *
- * @param parilu Pointer to ::parilu struct to be freed.
+ * @param parilu Pointer to ::parilu_handle to be released.
  */
-void parilu_finalize(parilu **parilu) { parilu_free(parilu); }
+void parilu_finalize(parilu_handle **parilu) { parilu_free(parilu); }

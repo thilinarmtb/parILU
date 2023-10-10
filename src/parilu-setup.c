@@ -2,19 +2,21 @@
 
 /**
  * @ingroup parilu_user_api_functions
- * @brief Setup parilu. Returns a pointer to a newly allocated struct parilu_t.
+ * @brief Setup parilu. Returns a pointer to a newly allocated ::parilu_handle
+ * handle.
  *
  * @param nnz Number of nonzeros in the matrix.
  * @param row Global row index or number.
  * @param col Global column index or number.
  * @param val Values of the matrix. val[i] is the value of the matrix entry
  * (row[i], col[i]).
- * @param options Pointer to the ::parilu_opts which stores the options.
+ * @param options Pointer to the ::parilu_options which stores the options.
  * @param comm MPI communicator.
  */
-parilu *parilu_setup(const uint32_t nnz, const uint64_t *const row,
-                     const uint64_t *const col, const double *const val,
-                     const parilu_opts *const options, const MPI_Comm comm) {
+parilu_handle *parilu_setup(const uint32_t nnz, const uint64_t *const row,
+                            const uint64_t *const col, const double *const val,
+                            const parilu_options *const options,
+                            const MPI_Comm comm) {
   // Create a gslib comm out of MPI_Comm.
   struct comm c;
   comm_init(&c, comm);
@@ -34,7 +36,7 @@ parilu *parilu_setup(const uint32_t nnz, const uint64_t *const row,
 
   // Initialize ILU struct.
   parilu_log(&c, PARILU_INFO, "parilu_setup: Initialize ILU options.");
-  parilu *ilu = parilu_calloc(parilu, 1);
+  parilu_handle *ilu = parilu_calloc(parilu_handle, 1);
   {
     ilu->pivot = options->pivot;
     ilu->null_space = options->null_space;
