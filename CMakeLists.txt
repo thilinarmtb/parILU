@@ -26,12 +26,27 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
-set(SOURCES src/parilu-options.c src/parilu-impl.c src/parilu-setup.c
-  src/parilu-mat.c src/parilu-partition.c)
+# Enable docs if ENABLE_DOCS is set.
+if (ENABLE_DOCS)
+  add_subdirectory("docs")
+endif()
+
+# Enable AddressSanitizer if ENABLE_ASAN is set.
+set(PARILU_ADDRESS_SANITIZER FALSE)
+if (ENABLE_ASAN)
+  include(CheckLinkerFlag)
+  check_linker_flag(C -fsanitize=address PARILU_ADDRESS_SANITIZER)
+  if (NOT PARILU_ADDRESS_SANITIZER)
+    message(FATAL_ERROR "AddressSanitizer is enabled but not supported.")
+  endif()
+endif()
+
+set(PARILU_SOURCES src/parilu-options.c src/parilu-impl.c src/parilu-setup.c
+  src/parilu-mat.c src/parilu-partition.c src/parilu-io.c)
 configure_file(${CMAKE_SOURCE_DIR}/include/parilu-defs.h.in
   ${CMAKE_SOURCE_DIR}/include/parilu-defs.h @ONLY)
 
-add_library(parilu SHARED ${SOURCES})
+add_library(parilu SHARED ${PARILU_SOURCES})
 set_target_properties(parilu PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION 1
   PUBLIC_HEADER include/parilu.h)
 target_include_directories(parilu PRIVATE include)
@@ -40,21 +55,50 @@ target_compile_options(parilu PRIVATE
   $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic>)
 target_compile_options(parilu PRIVATE
   $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unused-function -Wno-unused-parameter>)
-
-add_executable(parilu-example examples/parilu.c)
-set_target_properties(parilu-example PROPERTIES VERSION ${PROJECT_VERSION})
-target_link_libraries(parilu-example PRIVATE parilu)
-target_include_directories(parilu-example PRIVATE include)
-target_compile_options(parilu-example PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
-  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic>)
-target_compile_options(parilu-example PRIVATE
-  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unused-function -Wno-unused-parameter>)
+if (PARILU_ADDRESS_SANITIZER)
+  target_compile_options(parilu PRIVATE -fsanitize=address)
+  target_link_options(parilu PRIVATE -fsanitize=address)
+endif()
 
 include(3rd_party/gslib.cmake)
 
-if (ENABLE_DOCS)
-  add_subdirectory("docs")
-endif()
+install(TARGETS parilu EXPORT parilu-targets LIBRARY DESTINATION lib
+  PUBLIC_HEADER DESTINATION include
+)
+
+macro(parilu_generate_bin_targets target prefix install_dir include_dirs)
+  string(REPLACE ${prefix} "" target_exe ${target})
+  string(REPLACE ".c" "" target_exe ${target_exe})
+  set(target_exe ${target_exe})
+
+  add_executable(${target_exe} ${target})
+  target_link_libraries(${target_exe} PRIVATE parilu)
+  target_include_directories(${target_exe} PRIVATE include ${include_dirs})
+  target_compile_options(${target_exe} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic>)
+  target_compile_options(${target_exe} PRIVATE
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unused-function -Wno-unused-parameter>)
+  if (PARILU_ADDRESS_SANITIZER)
+    target_compile_options(${target_exe} PRIVATE -fsanitize=address)
+    target_link_options(${target_exe} PRIVATE -fsanitize=address)
+  endif()
+
+  install(TARGETS ${target_exe} RUNTIME DESTINATION ${install_dir})
+endmacro(parilu_generate_bin_targets)
+
+# Add examples to the build tree.
+file(GLOB PARILU_EXAMPLES ${CMAKE_SOURCE_DIR}/examples/*.c)
+foreach(example ${PARILU_EXAMPLES})
+  parilu_generate_bin_targets(${example} "${CMAKE_SOURCE_DIR}/examples/"
+    "examples" "")
+endforeach()
+
+# Add tests to the build tree.
+file(GLOB PARILU_TESTS ${CMAKE_SOURCE_DIR}/tests/*.c)
+foreach(test ${PARILU_TESTS})
+  parilu_generate_bin_targets(${test} "${CMAKE_SOURCE_DIR}/tests/"
+    "tests" ${GSLIB_INSTALL_DIR}/include)
+endforeach()
 
 # Add clang-format as a custom target if available.
 find_program(CLANG_FORMAT NAMES clang-format)
@@ -76,26 +120,3 @@ if (CLANG_TIDY)
     COMMAND ${CLANG_TIDY} -p ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/*/*.[ch]
     COMMENT "Running clang-tidy ...")
 endif()
-
-# Turn on AddressSanitizer if ENABLE_ASAN is set.
-if (ENABLE_ASAN)
-  include(CheckLinkerFlag)
-  check_linker_flag(C -fsanitize=address HAS_ADDRESS_SANITIZER)
-  if (HAS_ADDRESS_SANITIZER)
-    target_compile_options(parilu PRIVATE -fsanitize=address)
-    target_link_options(parilu PRIVATE -fsanitize=address)
-    target_compile_options(parilu-example PRIVATE -fsanitize=address)
-    target_link_options(parilu-example PRIVATE -fsanitize=address)
-  else()
-    message(FATAL_ERROR "AddressSanitizer is enabled but not supported.")
-  endif()
-endif()
-
-install(TARGETS parilu parilu-example EXPORT parilu-targets
-  RUNTIME DESTINATION examples LIBRARY DESTINATION lib
-  PUBLIC_HEADER DESTINATION include
-)
-
-install(EXPORT parilu-targets FILE parilu-config.cmake NAMESPACE parilu::
-  DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/parilu"
-)
