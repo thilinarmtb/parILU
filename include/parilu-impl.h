@@ -40,6 +40,21 @@
 #endif
 
 /**
+ * Struct to hold the options for the ILU preconditioner.
+ */
+struct parilu_opts_t {
+  unsigned verbose;    /**< Verbosity level: 0, 1, 2, ... */
+  unsigned type;       /**< ILU type: ILU(0), ILUC, etc. */
+  unsigned pivot;      /**< Use pivoting or not. */
+  unsigned null_space; /**< Is there a null space? */
+  double
+      tol; /**< 1st dropping rule: An entry a_ij is dropped abs(a_ij) < tol. */
+  unsigned int nnz_per_row; /**< 2nd dropping rule: Entries are dropped so that
+                               total nnz per row/col < p. */
+  char *file;               /**< File to read the matrix from. */
+};
+
+/**
  * parILU handle returned by parilu_setup().
  */
 struct parilu_t {

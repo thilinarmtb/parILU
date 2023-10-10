@@ -92,6 +92,6 @@ void parilu_assert_(const int cond, const char *const msg,
  * @brief Finalize parilu. Frees the memory allocated for the struct parilu_t
  * returned by parilu_setup() and sets the pointer to NULL.
  *
- * @param parilu Pointer to the struct parilu_t* to be freed.
+ * @param parilu Pointer to ::parilu struct to be freed.
  */
-void parilu_finalize(struct parilu_t **parilu) { parilu_free(parilu); }
+void parilu_finalize(parilu **parilu) { parilu_free(parilu); }

@@ -115,13 +115,27 @@ static void read_matrix(uint32_t *const nnz, uint64_t **const row,
 int main(int argc, char **argv) {
   MPI_Init(&argc, &argv);
 
-  struct parilu_opts_t *opts = parilu_parse_opts(&argc, &argv);
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  if (argc < 2 && rank == 0) {
+    fprintf(stderr, "Usage: %s <matrix file> [<verbose level>]\n", argv[0]);
+    MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
+  }
+
+  const char *file = argv[1];
+  unsigned verbose = 0;
+  if (argc > 2)
+    verbose = atoi(argv[2]);
+
+  parilu_opts *opts = parilu_default_opts();
+  parilu_set_verbose(opts, verbose);
+  parilu_set_matrix(opts, file);
 
   uint32_t nnz;
   uint64_t *row = NULL, *col = NULL;
   double *val = NULL;
-  read_matrix(&nnz, &row, &col, &val, opts->file, MPI_COMM_WORLD,
-              opts->verbose);
+  read_matrix(&nnz, &row, &col, &val, file, MPI_COMM_WORLD, verbose);
 
   struct parilu_t *ilu = parilu_setup(nnz, row, col, val, opts, MPI_COMM_WORLD);
 
