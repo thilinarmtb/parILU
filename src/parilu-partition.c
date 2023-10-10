@@ -160,12 +160,13 @@ static int tqli(scalar *const evec, scalar *const eval, const uint n,
 
 static uint lanczos_aux(scalar *const alpha, scalar *const beta,
                         scalar *const rr, const scalar *const f,
-                        struct parilu_mat_op_t *op, const struct comm *const c,
-                        const uint miter, const scalar rtol) {
+                        struct parilu_matrix_op_t *op,
+                        const struct comm *const c, const uint miter,
+                        const scalar rtol) {
   parilu_log(c, PARILU_INFO, "lanczos_aux: miter = %d, rtol = %e.", miter,
              rtol);
 
-  const struct parilu_mat_t *M = op->M;
+  const parilu_matrix *M = op->M;
   const uint rn = M->rn;
 
   // Allocate memory for the Lanczos vectors.
@@ -197,7 +198,7 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
 
     orthogonalize(p, rn, c);
 
-    parilu_mat_op_apply(w, op, p);
+    parilu_matrix_op_apply(w, op, p);
 
     pap2 = pap1, pap1 = dot(p, w, rn, c);
 
@@ -233,13 +234,13 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
   return iter;
 }
 
-static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
+static void parilu_lanczos(scalar *const fiedler, const parilu_matrix *M,
                            const uint miter, const uint mpass,
                            const scalar rtol, const struct comm *const c) {
   parilu_log(c, PARILU_INFO, "parilu_partition: Compute Fiedler vector.");
 
   const uint rn = M->rn;
-  struct parilu_mat_op_t *op = parilu_mat_op_setup(M, c);
+  struct parilu_matrix_op_t *op = parilu_matrix_op_setup(M, c);
 
   scalar *alpha = NULL, *beta = NULL, *rr = NULL;
   scalar *evec = NULL, *eval = NULL;
@@ -294,11 +295,11 @@ static void parilu_lanczos(scalar *const fiedler, const struct parilu_mat_t *M,
     parilu_free(&rr);
     parilu_free(&evec);
     parilu_free(&eval);
-    parilu_mat_op_free(&op);
+    parilu_matrix_op_free(&op);
   }
 }
 
-static void parilu_fiedler(scalar *const fiedler, const struct parilu_mat_t *M,
+static void parilu_fiedler(scalar *const fiedler, const parilu_matrix *M,
                            const struct comm *const c, buffer *bfr) {
   parilu_log(c, PARILU_INFO, "parilu_partition: Compute Fiedler vector.");
 
@@ -345,8 +346,8 @@ static void parilu_fiedler(scalar *const fiedler, const struct parilu_mat_t *M,
   normalize(fiedler, nr, c);
 }
 
-void parilu_partition(const struct parilu_mat_t *const M,
-                      const struct comm *const c, buffer *const bfr) {
+void parilu_partition(const parilu_matrix *const M, const struct comm *const c,
+                      buffer *const bfr) {
   parilu_log(c, PARILU_INFO, "parilu_partition: Partition matrix.");
 
   scalar *fiedler = parilu_calloc(scalar, M->rn);
