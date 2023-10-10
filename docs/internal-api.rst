@@ -23,3 +23,7 @@ Structures
 .. doxygenstruct:: parilu_t
    :project: parilu
    :members:
+
+.. doxygenstruct:: parilu_opts_t
+   :project: parilu
+   :members:

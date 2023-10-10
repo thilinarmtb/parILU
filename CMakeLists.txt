@@ -26,7 +26,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
-set(SOURCES src/parilu-parse-opts.c src/parilu-impl.c src/parilu-setup.c
+set(SOURCES src/parilu-options.c src/parilu-impl.c src/parilu-setup.c
   src/parilu-mat.c src/parilu-partition.c)
 configure_file(${CMAKE_SOURCE_DIR}/include/parilu-defs.h.in
   ${CMAKE_SOURCE_DIR}/include/parilu-defs.h @ONLY)
