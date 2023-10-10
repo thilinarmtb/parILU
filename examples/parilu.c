@@ -14,7 +14,7 @@ static void read_matrix(uint32_t *const nnz, uint64_t **const row,
   // Ideally, we would like to have a parallel I/O but that is too complicated
   // for an example.
   uint64_t *row_ = NULL, *col_ = NULL;
-  uint32_t count = 0;
+  uint32_t count = 0, nnz_ = 0;
   double *val_ = NULL;
   if (c.id == 0) {
     FILE *fp = fopen(file, "r");
@@ -23,15 +23,15 @@ static void read_matrix(uint32_t *const nnz, uint64_t **const row,
       MPI_Abort(comm, EXIT_FAILURE);
     }
 
-    fscanf(fp, "%" SCNu32 "\n", nnz);
+    fscanf(fp, "%" SCNu32 "\n", &nnz_);
 
-    row_ = calloc(*nnz, sizeof(**row));
-    col_ = calloc(*nnz, sizeof(**col));
-    val_ = calloc(*nnz, sizeof(**val));
+    row_ = calloc(nnz_, sizeof(**row));
+    col_ = calloc(nnz_, sizeof(**col));
+    val_ = calloc(nnz_, sizeof(**val));
 
     int64_t r, c;
     double v;
-    for (uint32_t i = 0; i < *nnz; ++i) {
+    for (uint32_t i = 0; i < nnz_; ++i) {
       fscanf(fp, "%" SCNd64 " %" SCNd64 " %lf\n", &r, &c, &v);
       if (r < 0 || c < 0)
         continue;
@@ -44,12 +44,9 @@ static void read_matrix(uint32_t *const nnz, uint64_t **const row,
 
   if (c.id == 0 && verbose) {
     printf("read_matrix: Read %" PRIu32 " nonzeros from %" PRIu32 " entries.\n",
-           count, *nnz);
+           count, nnz_);
     fflush(stdout);
   }
-
-  if (*nnz == 0)
-    return;
 
   struct entry_t {
     uint64_t row;
@@ -63,9 +60,9 @@ static void read_matrix(uint32_t *const nnz, uint64_t **const row,
   array_init(struct entry_t, &mat, 1024);
   if (c.id == 0) {
     // Size of the expected data on rank 0.
-    const uint nrem = *nnz % c.np;
-    const uint32_t n = (*nnz / c.np) + (nrem > 0);
-    // Check invariant: n > 0 since *nnz > 0.
+    const uint nrem = count % c.np;
+    const uint32_t n = (count / c.np) + (nrem > 0);
+    // Check invariant: n > 0 since count > 0.
     assert(n >= 1);
 
     struct entry_t m;
@@ -78,7 +75,7 @@ static void read_matrix(uint32_t *const nnz, uint64_t **const row,
       array_cat(struct entry_t, &mat, &m, 1);
     }
 
-    for (uint32_t i = N; i < *nnz; ++i) {
+    for (uint32_t i = N; i < count; ++i) {
       m.row = row_[i];
       m.col = col_[i];
       m.val = val_[i];
@@ -115,13 +112,27 @@ static void read_matrix(uint32_t *const nnz, uint64_t **const row,
 int main(int argc, char **argv) {
   MPI_Init(&argc, &argv);
 
-  struct parilu_opts_t *opts = parilu_parse_opts(&argc, &argv);
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  if (argc < 2 && rank == 0) {
+    fprintf(stderr, "Usage: %s <matrix file> [<verbose level>]\n", argv[0]);
+    MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
+  }
+
+  const char *file = argv[1];
+  unsigned verbose = 0;
+  if (argc > 2)
+    verbose = atoi(argv[2]);
+
+  parilu_opts *opts = parilu_default_opts();
+  parilu_set_verbose(opts, verbose);
+  parilu_set_matrix(opts, file);
 
   uint32_t nnz;
   uint64_t *row = NULL, *col = NULL;
   double *val = NULL;
-  read_matrix(&nnz, &row, &col, &val, opts->file, MPI_COMM_WORLD,
-              opts->verbose);
+  read_matrix(&nnz, &row, &col, &val, file, MPI_COMM_WORLD, verbose);
 
   struct parilu_t *ilu = parilu_setup(nnz, row, col, val, opts, MPI_COMM_WORLD);
 

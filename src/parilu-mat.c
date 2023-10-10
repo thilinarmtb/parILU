@@ -104,11 +104,12 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
   }
 
   // Find the column ids in each processor.
-  uint cn = 0, cmax = MAX_ARRAY_SIZE;
-  ulong *cols = parilu_calloc(ulong, cmax);
   {
     sarray_sort(struct mij_t, mat1.ptr, mat1.n, c, 1, bfr);
     struct mij_t *pm1 = (struct mij_t *)mat1.ptr;
+
+    uint cn = 0, cmax = MAX_ARRAY_SIZE;
+    M->col = parilu_calloc(ulong, cmax);
 
     uint i = 0;
     while (i < mat1.n) {
@@ -119,12 +120,14 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
 
       if (cn == cmax) {
         cmax += cmax / 2 + 1;
-        cols = trealloc(ulong, cols, cmax);
+        M->col = trealloc(ulong, M->col, cmax);
       }
-      cols[cn] = pm1[i].c, cn++, i = j;
+      M->col[cn] = pm1[i].c, cn++, i = j;
     }
+
+    M->cn = cn;
+    parilu_log(c, PARILU_INFO, "parilu_mat_setup: cn = %u.", cn);
   }
-  parilu_log(c, PARILU_INFO, "parilu_mat_setup: cn = %u.", cn);
 
   // Setup the CSR matrix.
   {
@@ -138,6 +141,7 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
     M->val = parilu_calloc(scalar, mat1.n);
 
     uint i = 0, r = 0, nnz = 0;
+    M->off[0] = 0;
     while (i < mat1.n) {
       uint j = i;
       while (j < mat1.n && pm1[i].r == pm1[j].r)
@@ -153,13 +157,6 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
     // Check invariant: mat1.n == nnz
     parilu_assert(nnz == mat1.n, "nnz != mat1.n.");
     array_free(&mat1);
-
-    M->cn = cn;
-    M->col = parilu_calloc(ulong, cn);
-    for (uint i = 0; i < cn; i++)
-      M->col[i] = cols[i];
-
-    parilu_free(&cols);
   }
   parilu_log(c, PARILU_INFO, "parilu_mat_setup: nnz = %u.", mat1.n);
 
@@ -169,10 +166,7 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
 struct parilu_mat_t *
 parilu_mat_laplacian_setup(const struct parilu_mat_t *const M) {
   parilu_assert(M != NULL, "M == NULL.");
-  parilu_assert(M->off != NULL, "M->off == NULL.");
-  parilu_assert(M->idx != NULL, "M->idx == NULL.");
-  parilu_assert(M->col != NULL, "M->col == NULL.");
-  parilu_assert(M->row != NULL, "M->row == NULL.");
+  parilu_assert(M->rn > 0, "M->rn == 0");
 
   struct parilu_mat_t *L = parilu_calloc(struct parilu_mat_t, 1);
 
@@ -200,7 +194,7 @@ parilu_mat_laplacian_setup(const struct parilu_mat_t *const M) {
       L->val[j] = -1;
     }
     parilu_assert(didx >= 0, "No diagonal entry found!");
-    L->val[didx] = M->off[i + 1] - M->off[i] - 1;
+    L->val[didx] = (scalar)(M->off[i + 1] - M->off[i]) - 1;
   }
 
   return L;
@@ -209,6 +203,8 @@ parilu_mat_laplacian_setup(const struct parilu_mat_t *const M) {
 PARILU_INTERN void parilu_mat_dump(const char *const file,
                                    const struct parilu_mat_t *const M,
                                    const struct comm *const c) {
+  parilu_log(c, PARILU_INFO, "parilu_mat_dump: file = %s.", file);
+
   struct data_t {
     ulong r, c;
     uint p;
@@ -243,25 +239,22 @@ PARILU_INTERN void parilu_mat_dump(const char *const file,
     buffer_free(&bfr);
   }
 
-  // Free data and exit if not rank 0.
-  if (c->id) {
-    array_free(&arr);
-    return;
-  }
-
   // Write the data to file at rank 0.
-  {
-    FILE *fp = fopen(file, "w");
-    if (!fp)
-      parilu_log(c, PARILU_ERROR, "Failed to open file %s.", file);
+  if (c->id == 0) {
+    FILE *fp = fopen(file, "w+");
+    if (!fp) {
+      fprintf(stderr, "Failed to open file %s.\n", file);
+      MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
+    }
 
     const struct data_t *const ptr = (const struct data_t *)arr.ptr;
     for (uint i = 0; i < arr.n; i++)
       fprintf(fp, "%llu %llu %e\n", ptr[i].r, ptr[i].c, ptr[i].v);
 
-    array_free(&arr);
     fclose(fp);
   }
+
+  array_free(&arr);
 }
 
 void parilu_mat_free(struct parilu_mat_t **M_) {

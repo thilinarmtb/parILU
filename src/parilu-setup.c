@@ -9,15 +9,12 @@
  * @param col Global column index or number.
  * @param val Values of the matrix. val[i] is the value of the matrix entry
  * (row[i], col[i]).
- * @param options Pointer to the struct parilu_opts_t which contains the
- * options.
+ * @param options Pointer to the ::parilu_opts which stores the options.
  * @param comm MPI communicator.
  */
-struct parilu_t *parilu_setup(const uint32_t nnz, const uint64_t *const row,
-                              const uint64_t *const col,
-                              const double *const val,
-                              const struct parilu_opts_t *const options,
-                              const MPI_Comm comm) {
+parilu *parilu_setup(const uint32_t nnz, const uint64_t *const row,
+                     const uint64_t *const col, const double *const val,
+                     const parilu_opts *const options, const MPI_Comm comm) {
   // Create a gslib comm out of MPI_Comm.
   struct comm c;
   comm_init(&c, comm);
@@ -54,17 +51,19 @@ struct parilu_t *parilu_setup(const uint32_t nnz, const uint64_t *const row,
 
   // Setup CSR mat for ILU system.
   struct parilu_mat_t *M = parilu_mat_setup(nnz, row, col, val, &c, &bfr);
+  parilu_mat_dump("system.txt", M, &c);
 
   // Create the Laplacian matrix of the system.
   parilu_log(&c, PARILU_INFO, "parilu_mat_laplacian_setup: ...");
   struct parilu_mat_t *L = parilu_mat_laplacian_setup(M);
+  parilu_mat_free(&L);
 
   // Parition the matrix with parRSB.
-  parilu_partition(L, &c, &bfr);
-
-  parilu_mat_free(&M), parilu_mat_free(&L);
+  // parilu_partition(L, &c, &bfr);
 
   parilu_log(&c, PARILU_INFO, "parilu_setup: done.");
+
+  parilu_mat_free(&M);
 
   buffer_free(&bfr);
   comm_free(&c);

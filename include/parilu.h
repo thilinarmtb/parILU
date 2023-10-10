@@ -40,35 +40,30 @@
  */
 
 /**
- * Struct to hold the options for the ILU preconditioner.
+ * Store the options for parILU. This is a typedef for struct ::parilu_opts_t.
  */
-struct parilu_opts_t {
-  unsigned verbose;    /**< Verbosity level: 0, 1, 2, ... */
-  unsigned type;       /**< ILU type: ILU(0), ILUC, etc. */
-  unsigned pivot;      /**< Use pivoting or not. */
-  unsigned null_space; /**< Is there a null space? */
-  double
-      tol; /**< 1st dropping rule: An entry a_ij is dropped abs(a_ij) < tol. */
-  unsigned int nnz_per_row; /**< 2nd dropping rule: Entries are dropped so that
-                               total nnz per row/col < p. */
-  char *file;               /**< File to read the matrix from. */
-};
+typedef struct parilu_opts_t parilu_opts;
+PARILU_EXTERN parilu_opts *parilu_default_opts(void);
 
-PARILU_EXTERN struct parilu_opts_t *parilu_parse_opts(int *argc, char **argv[]);
+PARILU_EXTERN int parilu_set_verbose(parilu_opts *opts, unsigned verbose);
 
-struct parilu_t;
+PARILU_EXTERN int parilu_set_matrix(parilu_opts *opts, const char *file);
 
-PARILU_EXTERN struct parilu_t *parilu_setup(uint32_t nnz, const uint64_t *row,
-                                            const uint64_t *col,
-                                            const double *val,
-                                            const struct parilu_opts_t *options,
-                                            MPI_Comm comm);
+PARILU_EXTERN int parilu_set_nulllspace(parilu_opts *opts, unsigned nulllspace);
 
-PARILU_EXTERN void parilu_solve(double *x, const struct parilu_t *ilu,
-                                const double *b);
+/**
+ * parILU handle returned by parilu_setup(). This is a typedef of struct
+ * ::parilu_t.
+ */
+typedef struct parilu_t parilu;
+PARILU_EXTERN parilu *parilu_setup(uint32_t nnz, const uint64_t *row,
+                                   const uint64_t *col, const double *val,
+                                   const parilu_opts *options, MPI_Comm comm);
 
-PARILU_EXTERN void parilu_finalize_opts(struct parilu_opts_t **opts);
+PARILU_EXTERN void parilu_solve(double *x, const parilu *ilu, const double *b);
 
-PARILU_EXTERN void parilu_finalize(struct parilu_t **parilu);
+PARILU_EXTERN void parilu_finalize_opts(parilu_opts **opts);
+
+PARILU_EXTERN void parilu_finalize(parilu **parilu);
 
 #endif // __LIBPARILU_H__
