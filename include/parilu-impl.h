@@ -125,7 +125,7 @@ PARILU_INTERN void parilu_assert_(int cond, const char *fmt, const char *file,
 /**
  * Structure for a sparse matrix.
  */
-struct parilu_mat_t {
+typedef struct {
   uint rn;     /**< Local number of rows (local to processor). */
   ulong *row;  /**< Global row numbers (size: rn). */
   uint *off;   /**< Local offsets for each row (size: rn + 1). */
@@ -133,40 +133,40 @@ struct parilu_mat_t {
   uint cn;     /**< Local number of columns. */
   ulong *col;  /**< Global column numbers (size: cn). */
   scalar *val; /**< Local values (size: off[rn + 1]). */
-};
+} parilu_matrix;
 
-PARILU_INTERN struct parilu_mat_t *
-parilu_mat_setup(uint32_t nnz, const uint64_t *row, const uint64_t *col,
-                 const double *val, const struct comm *c, buffer *bfr);
+PARILU_INTERN parilu_matrix *
+parilu_matrix_setup(uint32_t nnz, const uint64_t *row, const uint64_t *col,
+                    const double *val, const struct comm *c, buffer *bfr);
 
-PARILU_INTERN struct parilu_mat_t *
-parilu_mat_laplacian_setup(const struct parilu_mat_t *M);
+PARILU_INTERN parilu_matrix *
+parilu_matrix_laplacian_setup(const parilu_matrix *M);
 
-PARILU_INTERN void parilu_mat_dump(const char *file,
-                                   const struct parilu_mat_t *M,
-                                   const struct comm *c);
+PARILU_INTERN void parilu_matrix_dump(const char *file, const parilu_matrix *M,
+                                      const struct comm *c);
 
-PARILU_INTERN void parilu_mat_free(struct parilu_mat_t **M);
+PARILU_INTERN void parilu_matrix_free(parilu_matrix **M);
 
 /**
  * Structure to store the data for the matrix-vector product.
  */
-struct parilu_mat_op_t {
-  const struct parilu_mat_t *M; /**< Matrix. */
-  struct gs_data *gsh;          /**< gs handle required for communication. */
-  buffer bfr;                   /**< gslib buffer for gs workspace. */
-  scalar *wrk; /**< Work array for the matrix-vector product. */
+struct parilu_matrix_op_t {
+  const parilu_matrix *M; /**< Matrix. */
+  struct gs_data *gsh;    /**< gs handle required for communication. */
+  buffer bfr;             /**< gslib buffer for gs workspace. */
+  scalar *wrk;            /**< Work array for the matrix-vector product. */
 };
 
-PARILU_INTERN struct parilu_mat_op_t *
-parilu_mat_op_setup(const struct parilu_mat_t *M, const struct comm *c);
+PARILU_INTERN struct parilu_matrix_op_t *
+parilu_matrix_op_setup(const parilu_matrix *M, const struct comm *c);
 
-PARILU_INTERN void parilu_mat_op_apply(scalar *y, struct parilu_mat_op_t *op,
-                                       const scalar *x);
+PARILU_INTERN void parilu_matrix_op_apply(scalar *y,
+                                          struct parilu_matrix_op_t *op,
+                                          const scalar *x);
 
-PARILU_INTERN void parilu_mat_op_free(struct parilu_mat_op_t **op);
+PARILU_INTERN void parilu_matrix_op_free(struct parilu_matrix_op_t **op);
 
-PARILU_INTERN void parilu_partition(const struct parilu_mat_t *const M,
+PARILU_INTERN void parilu_partition(const parilu_matrix *const M,
                                     const struct comm *const c, buffer *bfr);
 
 #endif // __LIBPARILU_IMPL_H__

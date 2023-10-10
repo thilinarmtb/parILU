@@ -8,16 +8,16 @@ struct mij_t {
   scalar v;
 };
 
-struct parilu_mat_t *
-parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
-                 const uint64_t *const col, const double *const val,
-                 const struct comm *const c, buffer *const bfr) {
+parilu_matrix *
+parilu_matrix_setup(const uint32_t nnz, const uint64_t *const row,
+                    const uint64_t *const col, const double *const val,
+                    const struct comm *const c, buffer *const bfr) {
   // Check if the global matrix is empty and return if it is.
-  struct parilu_mat_t *M = parilu_calloc(struct parilu_mat_t, 1);
+  parilu_matrix *M = parilu_calloc(parilu_matrix, 1);
   {
     slong nnzg = nnz, wrk;
     comm_allreduce(c, gs_long, gs_add, &nnzg, 1, &wrk);
-    parilu_log(c, PARILU_INFO, "parilu_mat_setup: nnzg = %ld.", nnzg);
+    parilu_log(c, PARILU_INFO, "parilu_matrix_setup: nnzg = %ld.", nnzg);
     if (nnzg == 0) {
       M->rn = M->cn = 0;
       M->off = M->idx = NULL;
@@ -43,7 +43,7 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
 
     slong wrk;
     comm_allreduce(c, gs_long, gs_min, &minv, 1, &wrk);
-    parilu_log(c, PARILU_INFO, "parilu_mat_setup: minv = %ld.", minv);
+    parilu_log(c, PARILU_INFO, "parilu_matrix_setup: minv = %ld.", minv);
     parilu_assert(minv == 1, "minv != 1");
   }
 
@@ -88,7 +88,7 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
     }
     array_free(&mat2);
   }
-  parilu_log(c, PARILU_INFO, "parilu_mat_setup: nnz = %u.", mat1.n);
+  parilu_log(c, PARILU_INFO, "parilu_matrix_setup: nnz = %u.", mat1.n);
 
   // Find the number of rows in each processor.
   uint rn = 0;
@@ -126,7 +126,7 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
     }
 
     M->cn = cn;
-    parilu_log(c, PARILU_INFO, "parilu_mat_setup: cn = %u.", cn);
+    parilu_log(c, PARILU_INFO, "parilu_matrix_setup: cn = %u.", cn);
   }
 
   // Setup the CSR matrix.
@@ -151,24 +151,23 @@ parilu_mat_setup(const uint32_t nnz, const uint64_t *const row,
       i = j;
     }
 
-    parilu_log(c, PARILU_INFO, "parilu_mat_setup: r = %u.", r);
+    parilu_log(c, PARILU_INFO, "parilu_matrix_setup: r = %u.", r);
     // Check invariant: r == rn
     parilu_assert(r == rn, "r != rn.");
     // Check invariant: mat1.n == nnz
     parilu_assert(nnz == mat1.n, "nnz != mat1.n.");
     array_free(&mat1);
   }
-  parilu_log(c, PARILU_INFO, "parilu_mat_setup: nnz = %u.", mat1.n);
+  parilu_log(c, PARILU_INFO, "parilu_matrix_setup: nnz = %u.", mat1.n);
 
   return M;
 }
 
-struct parilu_mat_t *
-parilu_mat_laplacian_setup(const struct parilu_mat_t *const M) {
+parilu_matrix *parilu_matrix_laplacian_setup(const parilu_matrix *const M) {
   parilu_assert(M != NULL, "M == NULL.");
   parilu_assert(M->rn > 0, "M->rn == 0");
 
-  struct parilu_mat_t *L = parilu_calloc(struct parilu_mat_t, 1);
+  parilu_matrix *L = parilu_calloc(parilu_matrix, 1);
 
   const uint rn = L->rn = M->rn;
   L->off = parilu_calloc(uint, rn + 1);
@@ -200,10 +199,10 @@ parilu_mat_laplacian_setup(const struct parilu_mat_t *const M) {
   return L;
 }
 
-PARILU_INTERN void parilu_mat_dump(const char *const file,
-                                   const struct parilu_mat_t *const M,
-                                   const struct comm *const c) {
-  parilu_log(c, PARILU_INFO, "parilu_mat_dump: file = %s.", file);
+PARILU_INTERN void parilu_matrix_dump(const char *const file,
+                                      const parilu_matrix *const M,
+                                      const struct comm *const c) {
+  parilu_log(c, PARILU_INFO, "parilu_matrix_dump: file = %s.", file);
 
   struct data_t {
     ulong r, c;
@@ -257,9 +256,9 @@ PARILU_INTERN void parilu_mat_dump(const char *const file,
   array_free(&arr);
 }
 
-void parilu_mat_free(struct parilu_mat_t **M_) {
+void parilu_matrix_free(parilu_matrix **M_) {
   if (M_ && *M_) {
-    struct parilu_mat_t *M = *M_;
+    parilu_matrix *M = *M_;
     parilu_free(&M->off);
     parilu_free(&M->idx);
     parilu_free(&M->row);
@@ -269,14 +268,14 @@ void parilu_mat_free(struct parilu_mat_t **M_) {
   parilu_free(M_);
 }
 
-struct parilu_mat_op_t *parilu_mat_op_setup(const struct parilu_mat_t *M,
-                                            const struct comm *const c) {
+struct parilu_matrix_op_t *parilu_matrix_op_setup(const parilu_matrix *M,
+                                                  const struct comm *const c) {
   // Setup the gs handle for the communication required for the matrix-vector
   // product.
   const uint rn = M->rn, nnz = M->off[rn];
 
   // Initialize the buffer.
-  struct parilu_mat_op_t *op = parilu_calloc(struct parilu_mat_op_t, 1);
+  struct parilu_matrix_op_t *op = parilu_calloc(struct parilu_matrix_op_t, 1);
   {
     buffer_init(&op->bfr, MAX_ARRAY_SIZE);
     buffer_reserve(&op->bfr, (nnz + rn) * sizeof(slong));
@@ -301,11 +300,12 @@ struct parilu_mat_op_t *parilu_mat_op_setup(const struct parilu_mat_t *M,
   return op;
 }
 
-void parilu_mat_op_apply(scalar *const y, struct parilu_mat_op_t *const op,
-                         const scalar *const x) {
+void parilu_matrix_op_apply(scalar *const y,
+                            struct parilu_matrix_op_t *const op,
+                            const scalar *const x) {
   // Bring the entries necessry to do the mat-vec. Only rn entries are owned by
   // this process. Rest has to be brought in.
-  const struct parilu_mat_t *const M = op->M;
+  const parilu_matrix *const M = op->M;
   const uint rn = M->rn, nnz = M->off[rn];
   scalar *const wrk = op->wrk;
   {
@@ -325,9 +325,9 @@ void parilu_mat_op_apply(scalar *const y, struct parilu_mat_op_t *const op,
   }
 }
 
-void parilu_mat_op_free(struct parilu_mat_op_t **op_) {
+void parilu_matrix_op_free(struct parilu_matrix_op_t **op_) {
   if (op_ && *op_) {
-    struct parilu_mat_op_t *op = *op_;
+    struct parilu_matrix_op_t *op = *op_;
     buffer_free(&op->bfr);
     gs_free(op->gsh);
     parilu_free(&op->wrk);
