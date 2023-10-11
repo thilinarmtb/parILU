@@ -17,18 +17,18 @@ int main(int argc, char **argv) {
     MPI_Abort(comm, EXIT_FAILURE);
   }
 
-  const char *file = argv[1];
-  unsigned verbose = 0;
+  // const char *file = argv[1];
+  int32_t verbose = 0;
   if (argc > 2)
     verbose = atoi(argv[2]);
+  parilu_set_log_level(verbose);
 
   parilu_options *options = parilu_default_options();
-  parilu_set_verbose(options, verbose);
 
-  uint32_t nnz;
+  uint32_t nnz = 0;
   uint64_t *row = NULL, *col = NULL;
   double *val = NULL;
-  parilu_read_matrix(&nnz, &row, &col, &val, file, comm, verbose);
+  // parilu_matrix_from_file(&nnz, &row, &col, &val, file, comm);
 
   parilu_handle *ilu = parilu_setup(nnz, row, col, val, options, comm);
   free(row), free(col), free(val);

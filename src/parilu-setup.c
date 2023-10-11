@@ -21,10 +21,6 @@ parilu_handle *parilu_setup(const uint32_t nnz, const uint64_t *const row,
   struct comm c;
   comm_init(&c, comm);
 
-  const int verbose = options->verbose;
-  parilu_set_log_level(verbose);
-
-  parilu_log(&c, PARILU_INFO, "parilu_setup: verbose = %d", options->verbose);
   parilu_log(&c, PARILU_INFO, "parilu_setup: type = %d", options->type);
   parilu_log(&c, PARILU_INFO, "parilu_setup: pivot = %d", options->pivot);
   parilu_log(&c, PARILU_INFO, "parilu_setup: tol = %e", options->tol);
