@@ -8,88 +8,74 @@
  *
  * @brief Get the default options for the parilu_handle library. This can be
  * used to setup a system with parilu_setup(). User is responsible for calling
- * parilu_finalize_opts() to free the memory allocated by this function.
+ * parilu_finalize_options() to free the memory allocated by this function.
  *
  * @return ::parilu_options*
  */
-parilu_options *parilu_default_opts() {
-  parilu_options *opts = parilu_calloc(parilu_options, 1);
+parilu_options *parilu_default_options() {
+  parilu_options *options = parilu_calloc(parilu_options, 1);
 
-  opts->verbose = PARILU_VERBOSE;
-  opts->type = PARILU_TYPE;
-  opts->pivot = PARILU_PIVOT;
-  opts->tol = PARILU_TOL;
-  opts->nnz_per_row = PARILU_NNZ_PER_ROW;
-  opts->file = NULL;
+  options->verbose = PARILU_VERBOSE;
+  options->type = PARILU_TYPE;
+  options->pivot = PARILU_PIVOT;
+  options->tol = PARILU_TOL;
+  options->nnz_per_row = PARILU_NNZ_PER_ROW;
 
-  return opts;
+  return options;
 }
 
-int parilu_set_verbose(parilu_options *const opts, const unsigned verbose) {
-  opts->verbose = verbose;
+int parilu_set_verbose(parilu_options *const options, const unsigned verbose) {
+  options->verbose = verbose;
   return 0;
 }
 
-int parilu_get_verbose(const parilu_options *const opts, unsigned *verbose) {
-  *verbose = opts->verbose;
+int parilu_get_verbose(const parilu_options *const options, unsigned *verbose) {
+  *verbose = options->verbose;
   return 0;
 }
 
-int parilu_set_type(parilu_options *const opts, const unsigned type) {
-  opts->type = type;
+int parilu_set_type(parilu_options *const options, const unsigned type) {
+  options->type = type;
   return 0;
 }
 
-int parilu_get_type(const parilu_options *const opts, unsigned *type) {
-  *type = opts->type;
+int parilu_get_type(const parilu_options *const options, unsigned *type) {
+  *type = options->type;
   return 0;
 }
 
-int parilu_set_null_space(parilu_options *const opts,
+int parilu_set_null_space(parilu_options *const options,
                           const unsigned null_space) {
-  opts->null_space = null_space;
+  options->null_space = null_space;
   return 0;
 }
 
-int parilu_get_null_space(const parilu_options *const opts,
+int parilu_get_null_space(const parilu_options *const options,
                           unsigned *null_space) {
-  *null_space = opts->null_space;
+  *null_space = options->null_space;
   return 0;
 }
 
-int parilu_set_tol(parilu_options *const opts, const double tol) {
-  opts->tol = tol;
+int parilu_set_tol(parilu_options *const options, const double tol) {
+  options->tol = tol;
   return 0;
 }
 
-int parilu_get_tol(const parilu_options *const opts, double *tol) {
-  *tol = opts->tol;
+int parilu_get_tol(const parilu_options *const options, double *tol) {
+  *tol = options->tol;
   return 0;
 }
 
-int parilu_set_nnz_per_row(parilu_options *const opts,
+int parilu_set_nnz_per_row(parilu_options *const options,
                            const unsigned nnz_per_row) {
-  opts->nnz_per_row = nnz_per_row;
+  options->nnz_per_row = nnz_per_row;
   return 0;
 }
 
-int parilu_get_nnz_per_row(const parilu_options *const opts,
+int parilu_get_nnz_per_row(const parilu_options *const options,
                            unsigned *nnz_per_row) {
-  *nnz_per_row = opts->nnz_per_row;
+  *nnz_per_row = options->nnz_per_row;
   return 0;
 }
 
-int parilu_set_matrix(parilu_options *const opts, const char *const file) {
-  opts->file = strndup(file, BUFSIZ);
-  return 0;
-}
-
-int parilu_get_matrix(const parilu_options *const opts, char **const file) {
-  *file = strndup(opts->file, BUFSIZ);
-  return 0;
-}
-
-void parilu_finalize_opts(parilu_options **opts) {
-  parilu_free(&(*opts)->file);
-  parilu_free(opts);
-}
+void parilu_finalize_options(parilu_options **options) { parilu_free(options); }

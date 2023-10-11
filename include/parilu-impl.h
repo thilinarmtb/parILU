@@ -51,7 +51,6 @@ struct parilu_options_t {
       tol; /**< 1st dropping rule: An entry a_ij is dropped abs(a_ij) < tol. */
   unsigned int nnz_per_row; /**< 2nd dropping rule: Entries are dropped so that
                                total nnz per row/col < p. */
-  char *file;               /**< File to read the matrix from. */
 };
 
 /**
