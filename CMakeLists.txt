@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(parilu VERSION 0.0.1 DESCRIPTION "" LANGUAGES C)
+project(parILU VERSION 0.0.1 DESCRIPTION "" LANGUAGES C)
 
 option(ENABLE_DOCS "Enable Documentation" OFF)
 option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
