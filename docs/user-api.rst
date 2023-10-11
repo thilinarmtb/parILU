@@ -17,3 +17,11 @@ Functions
 .. doxygengroup:: parilu_user_api_functions
    :project: parilu
    :content-only:
+
+Structures
+^^^^^^^^^^
+.. doxygentypedef:: parilu_options
+   :project: parilu
+
+.. doxygentypedef:: parilu_handle
+   :project: parilu

@@ -44,7 +44,9 @@ PARILU_EXTERN void parilu_read_matrix(uint32_t *nnz, uint64_t **row,
                                       const char *file, MPI_Comm comm,
                                       unsigned verbose);
 /**
- * Store the options for parILU. This is a typedef for struct
+ * @typedef parilu_options
+ *
+ * @brief Store the options for parILU. This is a typedef for struct
  * ::parilu_options_t.
  */
 typedef struct parilu_options_t parilu_options;
@@ -79,7 +81,9 @@ PARILU_EXTERN int parilu_get_matrix(const parilu_options *opts, char **file);
 PARILU_EXTERN void parilu_finalize_opts(parilu_options **opts);
 
 /**
- * parILU handle returned by parilu_setup(). This is a typedef of struct
+ * @typedef parilu_handle
+ *
+ * @brief parILU handle returned by parilu_setup(). This is a typedef of struct
  * ::parilu_handle_t.
  */
 typedef struct parilu_handle_t parilu_handle;
