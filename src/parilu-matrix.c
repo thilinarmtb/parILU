@@ -1,3 +1,5 @@
+#include <inttypes.h>
+
 #include "parilu-impl.h"
 
 #define MAX_ARRAY_SIZE 1024
@@ -56,7 +58,7 @@ parilu_matrix *parilu_matrix_setup(const uint32_t nnz,
   struct array mat2;
   buffer bfr;
   {
-    buffer_init(&bfr, 1024);
+    buffer_init(&bfr, MAX_ARRAY_SIZE);
     sarray_sort_2(struct mij_t, mat1.ptr, mat1.n, r, 1, c, 1, &bfr);
     struct mij_t *pm1 = (struct mij_t *)mat1.ptr;
 
@@ -205,6 +207,137 @@ parilu_matrix *parilu_matrix_laplacian_setup(const parilu_matrix *const M) {
   return L;
 }
 
+parilu_matrix *parilu_matrix_from_file(const char *const file,
+                                       const MPI_Comm comm) {
+  struct comm c;
+  comm_init(&c, comm);
+
+  parilu_log(&c, PARILU_INFO, "read_matrix: Reading matrix from file %s", file);
+
+  // Only rank 0 will read the file and then distribute the data to other ranks.
+  // Ideally, we would like to have a parallel I/O but that is too complicated
+  // for an example.
+  FILE *fp = NULL;
+  sint err = 0;
+  if (c.id == 0) {
+    fp = fopen(file, "r");
+    err = (fp == NULL);
+  }
+
+  {
+    sint wrk;
+    comm_allreduce(&c, gs_int, gs_add, &err, 1, &wrk);
+    if (err) {
+      parilu_log(&c, PARILU_ERROR, "read_matrix: Failed to open file %s.\n",
+                 file);
+      comm_free(&c);
+      // return parilu_matrix_empty();
+      return NULL;
+    }
+  }
+
+  struct entry_t {
+    uint64_t row;
+    uint64_t col;
+    double val;
+    uint32_t p;
+  };
+
+  // Fill the matrix data at rank 0 to an array.
+  struct array mat;
+  array_init(struct entry_t, &mat, MAX_ARRAY_SIZE);
+
+  if (c.id == 0) {
+    uint32_t nnz_;
+    fscanf(fp, "%" SCNu32 "\n", &nnz_);
+
+    uint64_t *row_ = parilu_calloc(uint64_t, nnz_);
+    uint64_t *col_ = parilu_calloc(uint64_t, nnz_);
+    double *val_ = parilu_calloc(double, nnz_);
+
+    uint32_t count = 0;
+    int64_t ri, ci;
+    double v;
+    for (uint32_t i = 0; i < nnz_; ++i) {
+      fscanf(fp, "%" SCNd64 " %" SCNd64 " %lf\n", &ri, &ci, &v);
+      if (ri < 0 || ci < 0)
+        continue;
+      row_[count] = ri, col_[count] = ci, val_[count] = v;
+      count++;
+    }
+    fclose(fp);
+
+    // Size of the expected data on rank 0.
+    const uint nrem = count % c.np;
+    const uint32_t n = (count / c.np) + (nrem > 0);
+
+    // Check invariant: n > 0 since count > 0.
+    assert(n >= 1);
+
+    struct entry_t m;
+    const uint32_t N = n * nrem;
+    for (uint32_t i = 0; i < N; ++i) {
+      m.row = row_[i];
+      m.col = col_[i];
+      m.val = val_[i];
+      m.p = i / n;
+      array_cat(struct entry_t, &mat, &m, 1);
+    }
+
+    for (uint32_t i = N; i < count; ++i) {
+      m.row = row_[i];
+      m.col = col_[i];
+      m.val = val_[i];
+      m.p = nrem + (i - N) / (n - nrem);
+      array_cat(struct entry_t, &mat, &m, 1);
+    }
+
+    parilu_free(&row_), parilu_free(&col_), parilu_free(&val_);
+  }
+
+  // Send the data to other ranks.
+  {
+    struct crystal cr;
+    crystal_init(&cr, &c);
+    sarray_transfer(struct entry_t, &mat, p, 0, &cr);
+    crystal_free(&cr);
+  }
+
+  parilu_matrix *matrix = NULL;
+  if (mat.n > 0) {
+    uint32_t nnz_ = mat.n;
+    uint64_t *row_ = parilu_calloc(uint64_t, mat.n);
+    uint64_t *col_ = parilu_calloc(uint64_t, mat.n);
+    double *val_ = parilu_calloc(double, mat.n);
+
+    const struct entry_t *const ptr = (const struct entry_t *const)mat.ptr;
+    for (uint32_t i = 0; i < mat.n; ++i) {
+      row_[i] = ptr[i].row;
+      col_[i] = ptr[i].col;
+      val_[i] = ptr[i].val;
+    }
+    array_free(&mat);
+
+    matrix = parilu_matrix_setup(nnz_, row_, col_, val_, c.c);
+    parilu_free(&row_), parilu_free(&col_), parilu_free(&val_);
+    comm_free(&c);
+  }
+
+  return matrix;
+}
+
+uint32_t parilu_matrix_num_non_zeros(const parilu_matrix *const M) {
+  parilu_assert(M != NULL, "M == NULL.");
+  if (M->rn == 0)
+    return 0;
+  return M->off[M->rn];
+}
+
+uint32_t parilu_matrix_num_rows(const parilu_matrix *const M) {
+  parilu_assert(M != NULL, "M == NULL.");
+  return M->rn;
+}
+
 void parilu_matrix_dump(const char *const file, const parilu_matrix *const M,
                         const MPI_Comm comm) {
   struct comm c;
@@ -241,7 +374,7 @@ void parilu_matrix_dump(const char *const file, const parilu_matrix *const M,
     crystal_free(&cr);
 
     buffer bfr;
-    buffer_init(&bfr, 1024);
+    buffer_init(&bfr, MAX_ARRAY_SIZE);
     sarray_sort_2(struct data_t, arr.ptr, arr.n, r, 1, c, 1, &bfr);
     buffer_free(&bfr);
   }

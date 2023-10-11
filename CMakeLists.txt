@@ -42,8 +42,7 @@ if (ENABLE_ASAN)
 endif()
 
 set(PARILU_SOURCES src/parilu-options.c src/parilu-impl.c src/parilu-setup.c
-  src/parilu-matrix.c src/parilu-matrix-operator.c src/parilu-partition.c
-  src/parilu-io.c)
+  src/parilu-matrix.c src/parilu-matrix-operator.c src/parilu-partition.c)
 configure_file(${CMAKE_SOURCE_DIR}/include/parilu-defs.h.in
   ${CMAKE_SOURCE_DIR}/include/parilu-defs.h @ONLY)
 
@@ -100,6 +99,9 @@ foreach(test ${PARILU_TESTS})
   parilu_generate_bin_targets(${test} "${CMAKE_SOURCE_DIR}/tests/"
     "tests" ${GSLIB_INSTALL_DIR}/include)
 endforeach()
+# Install the matrix files with .mtx extension into tests.
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/tests/ DESTINATION
+  ${CMAKE_INSTALL_PREFIX}/tests FILES_MATCHING PATTERN "*.mtx")
 
 # Add clang-format as a custom target if available.
 find_program(CLANG_FORMAT NAMES clang-format)

@@ -15,23 +15,12 @@
 parilu_options *parilu_default_options() {
   parilu_options *options = parilu_calloc(parilu_options, 1);
 
-  options->verbose = PARILU_VERBOSE;
   options->type = PARILU_TYPE;
   options->pivot = PARILU_PIVOT;
   options->tol = PARILU_TOL;
   options->nnz_per_row = PARILU_NNZ_PER_ROW;
 
   return options;
-}
-
-int parilu_set_verbose(parilu_options *const options, const unsigned verbose) {
-  options->verbose = verbose;
-  return 0;
-}
-
-int parilu_get_verbose(const parilu_options *const options, unsigned *verbose) {
-  *verbose = options->verbose;
-  return 0;
 }
 
 int parilu_set_type(parilu_options *const options, const unsigned type) {

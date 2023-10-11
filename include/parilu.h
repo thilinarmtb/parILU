@@ -39,10 +39,8 @@
  * @brief User API functions defined in `parilu.h`.
  */
 
-PARILU_EXTERN void parilu_read_matrix(uint32_t *nnz, uint64_t **row,
-                                      uint64_t **col, double **val,
-                                      const char *file, MPI_Comm comm,
-                                      unsigned verbose);
+PARILU_EXTERN void parilu_set_log_level(int32_t verbose);
+
 /**
  * @typedef parilu_options
  *
@@ -52,11 +50,6 @@ PARILU_EXTERN void parilu_read_matrix(uint32_t *nnz, uint64_t **row,
 typedef struct parilu_options_t parilu_options;
 
 PARILU_EXTERN parilu_options *parilu_default_options(void);
-PARILU_EXTERN void parilu_finalize_options(parilu_options **options);
-
-PARILU_EXTERN int parilu_set_verbose(parilu_options *options, unsigned verbose);
-PARILU_EXTERN int parilu_get_verbose(const parilu_options *options,
-                                     unsigned *verbose);
 
 PARILU_EXTERN int parilu_set_type(parilu_options *options, unsigned type);
 PARILU_EXTERN int parilu_get_type(const parilu_options *options,
@@ -79,6 +72,8 @@ PARILU_EXTERN int parilu_set_nnz_per_row(parilu_options *options,
 PARILU_EXTERN int parilu_get_nnz_per_row(const parilu_options *options,
                                          unsigned *nnz_per_row);
 
+PARILU_EXTERN void parilu_finalize_options(parilu_options **options);
+
 /**
  * @typedef parilu_matrix
  *
@@ -90,13 +85,22 @@ typedef struct parilu_matrix_t parilu_matrix;
 PARILU_EXTERN parilu_matrix *
 parilu_matrix_setup(uint32_t nnz, const uint64_t *row, const uint64_t *col,
                     const double *val, MPI_Comm comm);
-PARILU_EXTERN void parilu_matrix_free(parilu_matrix **M);
+
+PARILU_EXTERN parilu_matrix *parilu_matrix_from_file(const char *file,
+                                                     MPI_Comm comm);
 
 PARILU_EXTERN parilu_matrix *
 parilu_matrix_laplacian_setup(const parilu_matrix *M);
 
+PARILU_EXTERN uint32_t parilu_matrix_num_non_zeros(const parilu_matrix *M);
+
+PARILU_EXTERN uint32_t parilu_matrix_num_rows(const parilu_matrix *M);
+
 PARILU_EXTERN void parilu_matrix_dump(const char *file, const parilu_matrix *M,
                                       MPI_Comm comm);
+
+PARILU_EXTERN void parilu_matrix_free(parilu_matrix **M);
+
 /**
  * @typedef parilu_matrix_operator
  *

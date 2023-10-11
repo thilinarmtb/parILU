@@ -10,7 +10,7 @@
  */
 void parilu_free_(void **ptr) { free(*ptr), *ptr = NULL; }
 
-static int verbose_ = 0;
+static int32_t verbose_ = 0;
 
 /**
  * @ingroup parilu_internal_api_functions
@@ -19,8 +19,9 @@ static int verbose_ = 0;
  *
  * @param verbose Verbosity level.
  */
-void parilu_set_log_level(const int verbose) { verbose_ = verbose; }
+void parilu_set_log_level(const int32_t verbose) { verbose_ = verbose; }
 
+static const char *log_type_string_[3] = {"ERROR", "WARN", "INFO"};
 /**
  * @ingroup parilu_internal_api_functions
  *
@@ -38,23 +39,9 @@ void parilu_log(const struct comm *const c, const parilu_log_t type,
   if (c->id > 0)
     return;
 
-  int print = 0;
-  if ((verbose_ > 0) && (type == PARILU_ERROR)) {
-    fprintf(stderr, "[ERROR]: ");
-    print = 1;
-  }
+  if (verbose_ >= (int)type) {
+    fprintf(stderr, "[%s]: ", log_type_string_[type - 1]);
 
-  if ((verbose_ > 1) && (type == PARILU_WARN)) {
-    fprintf(stderr, "[WARN]: ");
-    print = 1;
-  }
-
-  if ((verbose_ > 2) && (type == PARILU_INFO)) {
-    fprintf(stderr, "[INFO]: ");
-    print = 1;
-  }
-
-  if (print) {
     va_list args;
     va_start(args, fmt);
     vfprintf(stderr, fmt, args);
