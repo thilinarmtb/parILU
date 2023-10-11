@@ -32,7 +32,6 @@ parilu_handle *parilu_setup(const uint32_t nnz, const uint64_t *const row,
              options->nnz_per_row);
   parilu_log(&c, PARILU_INFO, "parilu_setup: null_space = %d",
              options->null_space);
-  parilu_log(&c, PARILU_INFO, "parilu_setup: file = %s", options->file);
 
   // Initialize ILU struct.
   parilu_log(&c, PARILU_INFO, "parilu_setup: Initialize ILU options.");

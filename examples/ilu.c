@@ -20,21 +20,22 @@ int main(int argc, char **argv) {
   if (argc > 2)
     verbose = atoi(argv[2]);
 
-  parilu_options *opts = parilu_default_opts();
-  parilu_set_verbose(opts, verbose);
-  parilu_set_matrix(opts, file);
+  parilu_options *options = parilu_default_options();
+  parilu_set_verbose(options, verbose);
 
   uint32_t nnz;
   uint64_t *row = NULL, *col = NULL;
   double *val = NULL;
   parilu_read_matrix(&nnz, &row, &col, &val, file, MPI_COMM_WORLD, verbose);
 
-  parilu_handle *ilu = parilu_setup(nnz, row, col, val, opts, MPI_COMM_WORLD);
+  parilu_handle *ilu =
+      parilu_setup(nnz, row, col, val, options, MPI_COMM_WORLD);
 
   free(row), free(col), free(val);
 
   parilu_finalize(&ilu);
-  parilu_finalize_opts(&opts);
+  parilu_finalize_options(&options);
+
   MPI_Finalize();
 
   return 0;
