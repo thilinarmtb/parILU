@@ -25,3 +25,9 @@ Structures
 
 .. doxygentypedef:: parilu_handle
    :project: parilu
+
+.. doxygentypedef:: parilu_matrix
+   :project: parilu
+
+.. doxygentypedef:: parilu_matrix_operator
+   :project: parilu
