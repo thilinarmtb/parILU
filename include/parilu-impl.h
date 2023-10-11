@@ -43,7 +43,6 @@
  * Struct to hold the options for the ILU preconditioner.
  */
 struct parilu_options_t {
-  unsigned verbose;    /**< Verbosity level: 0, 1, 2, ... */
   unsigned type;       /**< ILU type: ILU(0), ILUC, etc. */
   unsigned pivot;      /**< Use pivoting or not. */
   unsigned null_space; /**< Is there a null space? */
