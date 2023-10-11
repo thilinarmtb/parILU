@@ -1,4 +1,4 @@
-PARILU
+parILU
 ======
 
 Welcome to PARILU's documentation!

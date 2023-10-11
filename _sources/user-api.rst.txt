@@ -20,6 +20,8 @@ Functions
 
 Structures
 ^^^^^^^^^^
-.. doxygenstruct:: parilu_opts_t
+.. doxygentypedef:: parilu_options
    :project: parilu
-   :members:
+
+.. doxygentypedef:: parilu_handle
+   :project: parilu
