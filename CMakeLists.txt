@@ -42,7 +42,8 @@ if (ENABLE_ASAN)
 endif()
 
 set(PARILU_SOURCES src/parilu-options.c src/parilu-impl.c src/parilu-setup.c
-  src/parilu-mat.c src/parilu-partition.c src/parilu-io.c)
+  src/parilu-matrix.c src/parilu-matrix-operator.c src/parilu-partition.c
+  src/parilu-io.c)
 configure_file(${CMAKE_SOURCE_DIR}/include/parilu-defs.h.in
   ${CMAKE_SOURCE_DIR}/include/parilu-defs.h @ONLY)
 

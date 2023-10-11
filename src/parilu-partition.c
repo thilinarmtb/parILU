@@ -160,9 +160,8 @@ static int tqli(scalar *const evec, scalar *const eval, const uint n,
 
 static uint lanczos_aux(scalar *const alpha, scalar *const beta,
                         scalar *const rr, const scalar *const f,
-                        struct parilu_matrix_op_t *op,
-                        const struct comm *const c, const uint miter,
-                        const scalar rtol) {
+                        parilu_matrix_operator *op, const struct comm *const c,
+                        const uint miter, const scalar rtol) {
   parilu_log(c, PARILU_INFO, "lanczos_aux: miter = %d, rtol = %e.", miter,
              rtol);
 
@@ -198,7 +197,7 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
 
     orthogonalize(p, rn, c);
 
-    parilu_matrix_op_apply(w, op, p);
+    parilu_matrix_operator_apply(w, op, p);
 
     pap2 = pap1, pap1 = dot(p, w, rn, c);
 
@@ -240,7 +239,7 @@ static void parilu_lanczos(scalar *const fiedler, const parilu_matrix *M,
   parilu_log(c, PARILU_INFO, "parilu_partition: Compute Fiedler vector.");
 
   const uint rn = M->rn;
-  struct parilu_matrix_op_t *op = parilu_matrix_op_setup(M, c);
+  parilu_matrix_operator *op = parilu_matrix_operator_setup(M, c->c);
 
   scalar *alpha = NULL, *beta = NULL, *rr = NULL;
   scalar *evec = NULL, *eval = NULL;
@@ -295,7 +294,7 @@ static void parilu_lanczos(scalar *const fiedler, const parilu_matrix *M,
     parilu_free(&rr);
     parilu_free(&evec);
     parilu_free(&eval);
-    parilu_matrix_op_free(&op);
+    parilu_matrix_operator_free(&op);
   }
 }
 
@@ -346,15 +345,25 @@ static void parilu_fiedler(scalar *const fiedler, const parilu_matrix *M,
   normalize(fiedler, nr, c);
 }
 
-void parilu_partition(const parilu_matrix *const M, const struct comm *const c,
-                      buffer *const bfr) {
-  parilu_log(c, PARILU_INFO, "parilu_partition: Partition matrix.");
+void parilu_partition(const parilu_matrix *const M, const MPI_Comm comm) {
+  struct comm c;
+  comm_init(&c, comm);
+
+  parilu_log(&c, PARILU_INFO, "parilu_partition: Partition matrix.");
+
+  buffer bfr;
+  buffer_init(&bfr, 1024);
 
   scalar *fiedler = parilu_calloc(scalar, M->rn);
-  parilu_fiedler(fiedler, M, c, bfr);
-  parilu_free(&fiedler);
 
-  parilu_log(c, PARILU_INFO, "parilu_partition: done.");
+  parilu_fiedler(fiedler, M, &c, &bfr);
+
+  parilu_free(&fiedler);
+  buffer_free(&bfr);
+
+  parilu_log(&c, PARILU_INFO, "parilu_partition: done.");
+
+  comm_free(&c);
 }
 
 #undef MAX_LANCZOS_ITER
