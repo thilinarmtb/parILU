@@ -217,7 +217,7 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
       beta[iter - 2] = -beta_i * pap2 / sqrt(rtz2 * rtz1);
     }
 
-    parilu_log(c, PARILU_INFO, "lanczos_aux: iter = %d rnorm = %e", iter,
+    parilu_log(c, PARILU_INFO, "lanczos_aux: iter = %02d rnorm = %e", iter,
                rnorm);
     if (rnorm < rtol)
       break;
