@@ -45,7 +45,6 @@ parilu_handle *parilu_setup(const uint32_t nnz, const uint64_t *const row,
 
   // Setup CSR mat for ILU system.
   parilu_matrix *M = parilu_matrix_setup(nnz, row, col, val, comm);
-  parilu_matrix_dump("system.txt", M, comm);
 
   // Create the Laplacian matrix of the system.
   parilu_log(&c, PARILU_INFO, "parilu_matrix_laplacian_setup: ...");

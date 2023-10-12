@@ -173,7 +173,6 @@ parilu_matrix *parilu_matrix_setup(const uint32_t nnz,
 
 parilu_matrix *parilu_matrix_laplacian_setup(const parilu_matrix *const M) {
   parilu_assert(M != NULL, "M == NULL.");
-  parilu_assert(M->rn > 0, "M->rn == 0");
 
   parilu_matrix *L = parilu_calloc(parilu_matrix, 1);
 
@@ -181,16 +180,19 @@ parilu_matrix *parilu_matrix_laplacian_setup(const parilu_matrix *const M) {
   L->off = parilu_calloc(uint, rn + 1);
   memcpy(L->off, M->off, sizeof(uint) * (rn + 1));
 
+  if (rn == 0)
+    return L;
+
   L->row = parilu_calloc(ulong, rn);
   memcpy(L->row, M->row, sizeof(ulong) * rn);
-
-  const uint nnz = M->off[rn];
-  L->idx = parilu_calloc(uint, nnz);
-  memcpy(L->idx, M->idx, sizeof(ulong) * nnz);
 
   const uint cn = L->cn = M->cn;
   L->col = parilu_calloc(ulong, cn);
   memcpy(L->col, M->col, sizeof(ulong) * cn);
+
+  const uint nnz = M->off[rn];
+  L->idx = parilu_calloc(uint, nnz);
+  memcpy(L->idx, M->idx, sizeof(uint) * nnz);
 
   L->val = parilu_calloc(scalar, nnz);
   for (uint i = 0; i < rn; i++) {
