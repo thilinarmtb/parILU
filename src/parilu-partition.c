@@ -237,7 +237,7 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
     parilu_free(&w);
   }
 
-  return iter;
+  return iter < miter ? iter : miter;
 }
 
 static void parilu_lanczos(scalar *const fiedler, const parilu_matrix *M,
