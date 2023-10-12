@@ -380,13 +380,28 @@ void parilu_matrix_dump(const char *const file, const parilu_matrix *const M,
   }
 
   // Write the data to file at rank 0.
+  FILE *fp = NULL;
+  sint err = 0;
   if (c.id == 0) {
-    FILE *fp = fopen(file, "w+");
-    if (!fp) {
-      fprintf(stderr, "Failed to open file %s.\n", file);
-      MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
-    }
+    fp = fopen(file, "w+");
+    err = (fp == NULL);
+  }
 
+  // Check if the file was opened successfully.
+  {
+    sint wrk;
+    comm_allreduce(&c, gs_int, gs_add, &err, 1, &wrk);
+    if (err) {
+      parilu_log(&c, PARILU_ERROR,
+                 "parilu_matrix_dump: failed to open file: %s for writing",
+                 file);
+      comm_free(&c);
+      array_free(&arr);
+      return;
+    }
+  }
+
+  if (c.id == 0) {
     const struct data_t *const ptr = (const struct data_t *)arr.ptr;
     for (uint i = 0; i < arr.n; i++)
       fprintf(fp, "%llu %llu %e\n", ptr[i].r, ptr[i].c, ptr[i].v);
