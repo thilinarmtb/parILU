@@ -28,7 +28,7 @@ parilu_matrix *parilu_matrix_setup(const uint32_t nnz,
       M->rn = M->cn = 0;
       M->off = M->idx = NULL;
       M->row = M->col = NULL;
-      return M;
+      goto cleanup;
     }
   }
 
@@ -161,11 +161,12 @@ parilu_matrix *parilu_matrix_setup(const uint32_t nnz,
     parilu_assert(r == rn, "r != rn.");
     // Check invariant: mat1.n == nnz
     parilu_assert(nnz == mat1.n, "nnz != mat1.n.");
-
-    buffer_free(&bfr), array_free(&mat1);
   }
   parilu_log(&c, PARILU_INFO, "parilu_matrix_setup: done.");
 
+  buffer_free(&bfr);
+  array_free(&mat1);
+cleanup:
   comm_free(&c);
 
   return M;
@@ -233,8 +234,7 @@ int parilu_coo_from_file(uint32_t *nnz, uint64_t **row, uint64_t **col,
     if (err) {
       parilu_log(&c, PARILU_ERROR, "read_matrix: Failed to open file %s.\n",
                  file);
-      comm_free(&c);
-      return 1;
+      goto cleanup;
     }
   }
 
@@ -317,11 +317,12 @@ int parilu_coo_from_file(uint32_t *nnz, uint64_t **row, uint64_t **col,
       col_[i] = ptr[i].col;
       val_[i] = ptr[i].val;
     }
-    array_free(&mat);
-    comm_free(&c);
   }
 
-  return 0;
+  array_free(&mat);
+cleanup:
+  comm_free(&c);
+  return err;
 }
 
 parilu_matrix *parilu_matrix_from_file(const char *const file,
@@ -406,9 +407,7 @@ void parilu_matrix_dump(const char *const file, const parilu_matrix *const M,
       parilu_log(&c, PARILU_ERROR,
                  "parilu_matrix_dump: failed to open file: %s for writing",
                  file);
-      comm_free(&c);
-      array_free(&arr);
-      return;
+      goto cleanup;
     }
   }
 
@@ -420,6 +419,7 @@ void parilu_matrix_dump(const char *const file, const parilu_matrix *const M,
     fclose(fp);
   }
 
+cleanup:
   array_free(&arr);
   comm_free(&c);
 }

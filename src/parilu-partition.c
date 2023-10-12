@@ -66,6 +66,7 @@ static int tqli(scalar *const evec, scalar *const eval, const uint n,
     }
   }
 
+  int err = 0;
   uint m;
   for (uint l = 0; l < n; l++) {
     uint iter = 0;
@@ -79,7 +80,10 @@ static int tqli(scalar *const evec, scalar *const eval, const uint n,
       if (m != l) {
         for (uint i = 0; i < n; i++)
           eval[i] = d[i];
-        return iter++ == MAX_TQLI_ITER;
+        if (iter++ == MAX_TQLI_ITER) {
+          err = 1;
+          goto cleanup;
+        }
       }
 
       scalar g = (d[l + 1] - d[l]) / (2 * e[l]);
@@ -141,29 +145,32 @@ static int tqli(scalar *const evec, scalar *const eval, const uint n,
     for (uint i = 0; i < n; i++)
       e[k] += evec[k * n + i] * evec[k * n + i];
 
-    if (e[k] <= TOL)
-      return 1;
+    if (e[k] <= TOL) {
+      err = 1;
+      goto cleanup;
+    }
 
     e[k] = sqrt(fabs(e[k]));
     scalar scale = 1.0 / e[k];
     for (uint i = 0; i < n; i++)
       evec[i * n + k] *= scale;
   }
-  parilu_free(&e);
 
   for (uint i = 0; i < n; i++)
     eval[i] = d[i];
+
+cleanup:
+  parilu_free(&e);
   parilu_free(&d);
 
-  return 0;
+  return err;
 }
 
 static uint lanczos_aux(scalar *const alpha, scalar *const beta,
                         scalar *const rr, const scalar *const f,
                         parilu_matrix_operator *op, const struct comm *const c,
                         const uint miter, const scalar rtol) {
-  parilu_log(c, PARILU_INFO, "lanczos_aux: miter = %d, rtol = %e.", miter,
-             rtol);
+  parilu_log(c, PARILU_INFO, "lanczos_aux: miter = %d, rtol = %e", miter, rtol);
 
   const parilu_matrix *M = op->M;
   const uint rn = M->rn;
@@ -236,7 +243,7 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
 static void parilu_lanczos(scalar *const fiedler, const parilu_matrix *M,
                            const uint miter, const uint mpass,
                            const scalar rtol, const struct comm *const c) {
-  parilu_log(c, PARILU_INFO, "parilu_partition: Compute Fiedler vector.");
+  parilu_log(c, PARILU_INFO, "parilu_partition: Compute Fiedler vector");
 
   const uint rn = M->rn;
   parilu_matrix_operator *op = parilu_matrix_operator_setup(M, c->c);
@@ -252,14 +259,16 @@ static void parilu_lanczos(scalar *const fiedler, const parilu_matrix *M,
   }
 
   for (uint pass = 0; pass < mpass; pass++) {
-    parilu_log(c, PARILU_INFO, "parilu_partition: Lanczos, pass = %d.", pass);
+    parilu_log(c, PARILU_INFO, "parilu_partition: Lanczos, pass = %d", pass);
     uint iter = lanczos_aux(alpha, beta, rr, fiedler, op, c, miter, rtol);
 
     // Find eigenvalues and eigenvectors of the tridiagonal matrix.
     sint err = tqli(evec, eval, iter, alpha, beta), wrk;
     comm_allreduce(c, gs_int, gs_add, &err, 1, &wrk);
-    if (err)
-      parilu_log(c, PARILU_ERROR, "parilu_partition: tqli failed.");
+    if (err) {
+      parilu_log(c, PARILU_ERROR, "parilu_partition: tqli failed");
+      goto cleanup;
+    }
 
     // Find min eigenvalue and associated eigenvector.
     scalar eval_min = fabs(eval[0]);
@@ -287,6 +296,7 @@ static void parilu_lanczos(scalar *const fiedler, const parilu_matrix *M,
       break;
   }
 
+cleanup:
   // Free memory.
   {
     parilu_free(&alpha);
@@ -300,23 +310,29 @@ static void parilu_lanczos(scalar *const fiedler, const parilu_matrix *M,
 
 static void parilu_fiedler(scalar *const fiedler, const parilu_matrix *M,
                            const struct comm *const c, buffer *bfr) {
-  parilu_log(c, PARILU_INFO, "parilu_partition: Compute Fiedler vector.");
+  parilu_log(c, PARILU_INFO, "parilu_partition: Compute Fiedler vector");
 
-  const uint nr = M->rn;
+  const uint rn = M->rn;
 
   // Find the number of global rows and the start row id for this processor.
-  slong nrg, startg;
+  slong rng, startg;
   {
-    slong out[2][1], wrk[2][1], in = nr;
+    slong out[2][1], wrk[2][1], in = rn;
     comm_scan(out, c, gs_long, gs_add, &in, 1, wrk);
-    startg = out[0][0], nrg = out[1][0];
-    parilu_log(c, PARILU_INFO, "parilu_partition: Number of global rows = %ld.",
-               nrg);
+    startg = out[0][0], rng = out[1][0];
+    parilu_log(c, PARILU_INFO, "parilu_partition: Number of global rows = %ld",
+               rng);
   }
 
   // Return if the global matrix is empty.
-  if (nrg == 0) {
-    parilu_log(c, PARILU_WARN, "parilu_partition: Number of global rows = 0.");
+  if (rng == 0) {
+    parilu_log(c, PARILU_WARN, "parilu_partition: Number of global rows = 0");
+    return;
+  }
+
+  if (rng == 1) {
+    if (rn == 1)
+      fiedler[0] = 1.0;
     return;
   }
 
@@ -324,25 +340,25 @@ static void parilu_fiedler(scalar *const fiedler, const parilu_matrix *M,
   uint miter = MAX_LANCZOS_ITER, mpass = MAX_LANCZOS_PASS;
   const scalar rtol = RTOL;
   {
-    if (nrg < miter)
-      miter = nrg;
+    if (rng < miter)
+      miter = rng;
     parilu_log(c, PARILU_INFO,
                "parilu_partition: Number of iterations = %d, Number of "
-               "passes = %d, Relative residual = %lf.",
+               "passes = %d, Relative residual = %e",
                miter, mpass, rtol);
   }
 
   // Initialize and ortho-normalize the initial guess for Lanczos.
   {
-    for (uint i = 0; i < nr; i++)
-      fiedler[i] = startg + 1.0;
-    orthogonalize(fiedler, nr, c);
-    normalize(fiedler, nr, c);
+    for (uint i = 0; i < rn; i++)
+      fiedler[i] = startg + i + 1.0;
+    orthogonalize(fiedler, rn, c);
+    normalize(fiedler, rn, c);
   }
 
   parilu_lanczos(fiedler, M, miter, mpass, rtol, c);
 
-  normalize(fiedler, nr, c);
+  normalize(fiedler, rn, c);
 }
 
 void parilu_partition(const parilu_matrix *const M, const MPI_Comm comm) {
