@@ -34,23 +34,27 @@ parilu_matrix *parilu_matrix_setup(const uint32_t nnz,
 
   // Add the non-zeros into an array.
   struct array mat1;
+  slong minv = LONG_MAX, maxv = LONG_MIN;
   {
     array_init(struct mij_t, &mat1, nnz);
-    slong minv = LONG_MAX;
     for (uint32_t i = 0; i < nnz; i++) {
       ulong r = row[i], c = col[i];
       if (r == 0 || c == 0)
         continue;
       if ((slong)r < minv)
         minv = r;
+      if ((slong)r > maxv)
+        maxv = r;
       struct mij_t m = {.r = r, .c = c, .v = val[i]};
       array_cat(struct mij_t, &mat1, &m, 1);
     }
 
     slong wrk;
     comm_allreduce(&c, gs_long, gs_min, &minv, 1, &wrk);
-    parilu_log(&c, PARILU_INFO, "parilu_matrix_setup: minv = %ld.", minv);
-    parilu_assert(minv == 1, "minv != 1");
+    comm_allreduce(&c, gs_long, gs_max, &maxv, 1, &wrk);
+    parilu_log(&c, PARILU_INFO, "parilu_matrix_setup: minv = %ld, maxv = %ld",
+               minv, maxv);
+    parilu_assert(minv == 1, "parilu_matrix_setup: minv != 1.");
   }
 
   // Assemble the entries locally by summing up the entries with same row and
@@ -95,6 +99,26 @@ parilu_matrix *parilu_matrix_setup(const uint32_t nnz,
       i = j;
     }
     array_free(&mat2);
+  }
+
+  // Send the assembled rows to their final destination.
+  {
+    const uint local_rows = maxv / c.np;
+    const uint remainder = maxv % c.np;
+    const uint N = (local_rows + 1) * remainder;
+
+    struct mij_t *const pm1 = (struct mij_t *)mat1.ptr;
+    for (uint i = 0; i < mat1.n; i++) {
+      if (pm1[i].r <= N)
+        pm1[i].p = (pm1[i].r - 1) / (local_rows + 1);
+      else
+        pm1[i].p = remainder + (pm1[i].r - N - 1) / local_rows;
+    }
+
+    struct crystal cr;
+    crystal_init(&cr, &c);
+    sarray_transfer(struct mij_t, &mat1, p, 0, &cr);
+    crystal_free(&cr);
   }
 
   // Find the number of rows in each processor.

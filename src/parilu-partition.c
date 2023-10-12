@@ -4,8 +4,8 @@
 #define MAX_LANCZOS_ITER 50
 #define MAX_LANCZOS_PASS 50
 #define MAX_TQLI_ITER 30
-#define RTOL 1e-5
-#define TOL 1e-12
+#define LANCZOS_RELATIVE_TOLERANCE 1e-5
+#define TOLERANCE 1e-12
 
 static inline void orthogonalize(scalar *const v, const uint vn,
                                  const struct comm *const c) {
@@ -73,7 +73,7 @@ static int tqli(scalar *const evec, scalar *const eval, const uint n,
     do {
       for (m = l; m < n - 1; m++) {
         scalar dd = fabs(d[m]) + fabs(d[m + 1]);
-        if (fabs(e[m]) / dd < TOL)
+        if (fabs(e[m]) / dd < TOLERANCE)
           break;
       }
 
@@ -121,7 +121,7 @@ static int tqli(scalar *const evec, scalar *const eval, const uint n,
         }
       }
 
-      if (r < TOL && i >= (sint)l)
+      if (r < TOLERANCE && i >= (sint)l)
         continue;
 
       d[l] -= p;
@@ -145,7 +145,7 @@ static int tqli(scalar *const evec, scalar *const eval, const uint n,
     for (uint i = 0; i < n; i++)
       e[k] += evec[k * n + i] * evec[k * n + i];
 
-    if (e[k] <= TOL) {
+    if (e[k] <= TOLERANCE) {
       err = 1;
       goto cleanup;
     }
@@ -237,7 +237,7 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
     parilu_free(&w);
   }
 
-  return iter < miter ? iter : miter;
+  return iter <= miter ? iter : miter;
 }
 
 static void parilu_lanczos(scalar *const fiedler, const parilu_matrix *M,
@@ -269,14 +269,14 @@ static void parilu_lanczos(scalar *const fiedler, const parilu_matrix *M,
     }
   }
 
-  uint iter = miter;
+  uint miter_ = miter;
   {
     if (rng < miter)
-      iter = rng;
+      miter_ = rng;
     parilu_log(c, PARILU_INFO,
                "parilu_lanczos: Number of iterations = %d, Number of "
                "passes = %d, Relative residual = %e",
-               iter, mpass, rtol);
+               miter_, mpass, rtol);
 
     // Initialize the fiedler vector.
     for (uint i = 0; i < rn; i++)
@@ -298,7 +298,7 @@ static void parilu_lanczos(scalar *const fiedler, const parilu_matrix *M,
   for (uint pass = 0; pass < mpass; pass++) {
     parilu_log(c, PARILU_INFO, "parilu_partition: Lanczos, pass = %d",
                pass + 1);
-    iter = lanczos_aux(alpha, beta, rr, fiedler, op, c, iter, rtol);
+    uint iter = lanczos_aux(alpha, beta, rr, fiedler, op, c, miter_, rtol);
 
     // Find eigenvalues and eigenvectors of the tridiagonal matrix.
     sint err = tqli(evec, eval, iter, alpha, beta), wrk;
@@ -349,7 +349,7 @@ static void parilu_fiedler(const parilu_matrix *M, const struct comm *const c,
   parilu_log(c, PARILU_INFO, "parilu_partition: Compute Fiedler vector");
 
   int miter = MAX_LANCZOS_ITER, mpass = MAX_LANCZOS_PASS;
-  scalar rtol = RTOL;
+  scalar rtol = LANCZOS_RELATIVE_TOLERANCE;
 
   scalar *fiedler = parilu_calloc(scalar, M->rn);
   parilu_lanczos(fiedler, M, miter, mpass, rtol, c);
@@ -377,5 +377,5 @@ void parilu_partition(const parilu_matrix *const M, const MPI_Comm comm) {
 #undef MAX_LANCZOS_ITER
 #undef MAX_LANCZOS_PASS
 #undef MAX_TQLI_ITER
-#undef RTOL
-#undef TOL
+#undef LANCZOS_RELATIVE_TOLERANCE
+#undef TOLERANCE
