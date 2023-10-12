@@ -232,7 +232,7 @@ int parilu_coo_from_file(uint32_t *nnz, uint64_t **row, uint64_t **col,
     sint wrk;
     comm_allreduce(&c, gs_int, gs_add, &err, 1, &wrk);
     if (err) {
-      parilu_log(&c, PARILU_ERROR, "read_matrix: Failed to open file %s.\n",
+      parilu_log(&c, PARILU_ERROR, "read_matrix: Failed to open file %s\n",
                  file);
       goto cleanup;
     }
