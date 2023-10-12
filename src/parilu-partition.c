@@ -218,7 +218,7 @@ static uint lanczos_aux(scalar *const alpha, scalar *const beta,
       rr[iter * rn + i] = r[i] * rni;
 
     if (iter == 1) {
-      alpha[0] = pap1 / rtz1;
+      alpha[iter - 1] = pap1 / rtz1;
     } else {
       alpha[iter - 1] = (pap1 + beta_i * beta_i * pap2) / rtz1;
       beta[iter - 2] = -beta_i * pap2 / sqrt(rtz2 * rtz1);
@@ -259,7 +259,8 @@ static void parilu_lanczos(scalar *const fiedler, const parilu_matrix *M,
   }
 
   for (uint pass = 0; pass < mpass; pass++) {
-    parilu_log(c, PARILU_INFO, "parilu_partition: Lanczos, pass = %d", pass);
+    parilu_log(c, PARILU_INFO, "parilu_partition: Lanczos, pass = %d",
+               pass + 1);
     uint iter = lanczos_aux(alpha, beta, rr, fiedler, op, c, miter, rtol);
 
     // Find eigenvalues and eigenvectors of the tridiagonal matrix.
@@ -275,7 +276,7 @@ static void parilu_lanczos(scalar *const fiedler, const parilu_matrix *M,
     uint eval_min_idx = 0;
     for (uint i = 1; i < iter; i++) {
       if (fabs(eval[i]) < eval_min) {
-        eval_min = eval[i];
+        eval_min = fabs(eval[i]);
         eval_min_idx = i;
       }
     }
@@ -288,9 +289,7 @@ static void parilu_lanczos(scalar *const fiedler, const parilu_matrix *M,
     }
 
     orthogonalize(fiedler, rn, c);
-    scalar rni = 1.0 / sqrt(dot(fiedler, fiedler, rn, c));
-    for (uint i = 0; i < rn; i++)
-      fiedler[i] *= rni;
+    normalize(fiedler, rn, c);
 
     if (iter < miter)
       break;
