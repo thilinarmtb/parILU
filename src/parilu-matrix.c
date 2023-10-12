@@ -207,8 +207,9 @@ parilu_matrix *parilu_matrix_laplacian_setup(const parilu_matrix *const M) {
   return L;
 }
 
-parilu_matrix *parilu_matrix_from_file(const char *const file,
-                                       const MPI_Comm comm) {
+int parilu_coo_from_file(uint32_t *nnz, uint64_t **row, uint64_t **col,
+                         double **val, const char *const file,
+                         const MPI_Comm comm) {
   struct comm c;
   comm_init(&c, comm);
 
@@ -231,8 +232,7 @@ parilu_matrix *parilu_matrix_from_file(const char *const file,
       parilu_log(&c, PARILU_ERROR, "read_matrix: Failed to open file %s.\n",
                  file);
       comm_free(&c);
-      // return parilu_matrix_empty();
-      return NULL;
+      return 1;
     }
   }
 
@@ -303,12 +303,11 @@ parilu_matrix *parilu_matrix_from_file(const char *const file,
     crystal_free(&cr);
   }
 
-  parilu_matrix *matrix = NULL;
   if (mat.n > 0) {
-    uint32_t nnz_ = mat.n;
-    uint64_t *row_ = parilu_calloc(uint64_t, mat.n);
-    uint64_t *col_ = parilu_calloc(uint64_t, mat.n);
-    double *val_ = parilu_calloc(double, mat.n);
+    *nnz = mat.n;
+    uint64_t *row_ = *row = parilu_calloc(uint64_t, mat.n);
+    uint64_t *col_ = *col = parilu_calloc(uint64_t, mat.n);
+    double *val_ = *val = parilu_calloc(double, mat.n);
 
     const struct entry_t *const ptr = (const struct entry_t *const)mat.ptr;
     for (uint32_t i = 0; i < mat.n; ++i) {
@@ -317,11 +316,21 @@ parilu_matrix *parilu_matrix_from_file(const char *const file,
       val_[i] = ptr[i].val;
     }
     array_free(&mat);
-
-    matrix = parilu_matrix_setup(nnz_, row_, col_, val_, c.c);
-    parilu_free(&row_), parilu_free(&col_), parilu_free(&val_);
     comm_free(&c);
   }
+
+  return 0;
+}
+
+parilu_matrix *parilu_matrix_from_file(const char *const file,
+                                       const MPI_Comm comm) {
+  uint32_t nnz = 0;
+  uint64_t *row = NULL, *col = NULL;
+  double *val = NULL;
+  parilu_coo_from_file(&nnz, &row, &col, &val, file, comm);
+
+  parilu_matrix *matrix = parilu_matrix_setup(nnz, row, col, val, comm);
+  parilu_free(&row), parilu_free(&col), parilu_free(&val);
 
   return matrix;
 }
