@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
     MPI_Abort(comm, EXIT_FAILURE);
   }
 
-  // const char *file = argv[1];
+  const char *const file = argv[1];
   int32_t verbose = 0;
   if (argc > 2)
     verbose = atoi(argv[2]);
@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
   uint32_t nnz = 0;
   uint64_t *row = NULL, *col = NULL;
   double *val = NULL;
-  // parilu_matrix_from_file(&nnz, &row, &col, &val, file, comm);
+  parilu_coo_from_file(&nnz, &row, &col, &val, file, comm);
 
   parilu_handle *ilu = parilu_setup(nnz, row, col, val, options, comm);
   free(row), free(col), free(val);

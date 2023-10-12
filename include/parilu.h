@@ -74,6 +74,10 @@ PARILU_EXTERN int parilu_get_nnz_per_row(const parilu_options *options,
 
 PARILU_EXTERN void parilu_finalize_options(parilu_options **options);
 
+PARILU_EXTERN int parilu_coo_from_file(uint32_t *nnz, uint64_t **row,
+                                       uint64_t **col, double **val,
+                                       const char *file, MPI_Comm comm);
+
 /**
  * @typedef parilu_matrix
  *
