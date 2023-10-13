@@ -49,7 +49,6 @@ parilu_handle *parilu_setup(const uint32_t nnz, const uint64_t *const row,
   // Create the Laplacian matrix of the system.
   parilu_log(&c, PARILU_INFO, "parilu_matrix_laplacian_setup: ...");
   parilu_matrix *L = parilu_matrix_laplacian_setup(M);
-  parilu_matrix_dump("laplacian.txt", L, comm);
 
   // Parition the matrix with parRSB.
   parilu_partition(L, comm);
